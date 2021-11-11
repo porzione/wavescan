@@ -8,7 +8,7 @@ from os import scandir
 from os.path import dirname, realpath
 from sys import stderr
 import audiofile
-from jinja2 import Template as J2
+from jinja2 import Template as J2, StrictUndefined as J2Undef
 # import pprint
 import config
 
@@ -42,11 +42,16 @@ if args.lsp:
     spath = dirname(realpath(__file__))
     with open(f'{spath}/lsp-sampler-global.j2', 'r') as fin:
         src = fin.read()
-    tpl_global = J2(src)
+    tpl_global = J2(src, undefined=J2Undef)
     with open(f'{spath}/lsp-sampler-region.j2', 'r') as fin:
         src = fin.read()
-    tpl_region = J2(src)
+    tpl_region = J2(src, undefined=J2Undef)
     lsp = {}
+
+
+def warn(msg):
+    """print message to stderr"""
+    print(msg, file=stderr)
 
 
 def scantree(pathname):
@@ -77,16 +82,14 @@ for rx in config.instruments:
             rx[1]
         ])
     except re.error as err:
-        print(
-            f"problem with regex '{rx[0]}': {err}",
-            file=stderr
-        )
+        warn(f"problem with regex '{rx[0]}': {err}")
 
 
 def guess_note(pathname):
     """Tryng to guess instrument from pathname"""
     for rx in rx_instr:
         if rx[0].match(pathname):
+            # warn(f"guessed '{pathname}' with {rx}")
             return rx[1]
     return 0
 
@@ -99,13 +102,13 @@ for ent in scantree(path):
             # workaround for mono
             pan_l = '0.0' if audiofile.channels(ent.path) == 1 else '-100.0'
             if (note := guess_note(ent.path)) == 0:
-                print(f"can't guess instrument '{ent.path}'", file=stderr)
+                warn(f"can't guess instrument '{ent.path}'")
                 continue
             # print(f"note '{note}' {type(note)}")
             lsp[ent.path] = {
                 'debug': args.debug,
                 'name': ent.name,
-                'note': note % 12,
+                'lsp_note': note % 12,
                 'midi_note': note,
                 'midi_name': config.names[note],
                 'channels': audiofile.channels(ent.path),
@@ -122,17 +125,16 @@ for ent in scantree(path):
 
 if args.lsp:
     if len(lsp) == 0:
-        print("nothing found", file=stderr)
+        warn("nothing found")
         exit()
 
-    print(tpl_global.render(
-        inst=0
-    ))
+    print(tpl_global.render(inst=0))
     instruments = []
     samples = {}
     for file, data in lsp.items():
-        note = data['note']
+        note = data['midi_note']
         if note not in instruments:
+            warn(f"add {note}, total {len(instruments)}")
             instruments.append(note)
 
         if note not in samples:
@@ -140,10 +142,10 @@ if args.lsp:
 
         if args.limit:
             if samples[note] >= MAX_SAMPLES:
-                print(f"samples limit reached for: {file}", file=stderr)
+                warn(f"samples limit: {file} {data['midi_name']}")
                 continue
             if len(instruments) >= MAX_INSTRUMENTS:
-                print(f"instruments limit reached for: {file}", file=stderr)
+                warn(f"instruments limit: {file} {data['midi_name']}")
                 continue
 
         print(tpl_region.render(

@@ -1,5 +1,5 @@
 {% if debug -%}
-  # debug      : {{ name }} midi:{{ midi_name }}({{ midi_note }}) note:{{ note }} inst:{{ instr_num }} sample:{{ sample_num }}
+  # debug      : {{ name }} midi:{{ midi_name }}({{ midi_note }}) note:{{ lsp_note }} inst:{{ instr_num }} sample:{{ sample_num }}
 {% endif -%}
 # channels   : {{ channels }}
 # duration   : {{ duration }}
@@ -23,7 +23,7 @@ chan_{{ instr_num }} = {{ chan }}
 #   9: A
 #   10: A#
 #   11: B
-note_{{ instr_num }} = {{ note }}
+note_{{ instr_num }} = {{ lsp_note }}
 
 # Octave: 0..10
 #   0: -1
