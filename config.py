@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# LSP limits
+MAX_INSTRUMENTS = 48
+MAX_SAMPLES = 8
+
 instruments = [
     ["(kick|kik|BassDrum)", 36],
     ["(side|rim)", 37],
@@ -18,6 +22,7 @@ instruments = [
     ["crash", 49],
     ["(hi.*tom|tom.?hi)", 50],
     ["ride", 51],
+    ["chin(a|e)", 52],
     ["tamb", 54],
     ["splash", 55],
     ["cowbell", 56],
@@ -28,6 +33,8 @@ instruments = [
     ["(open.*conga|conga.*open)", 63],
     ["hi.*conga", 62],
     ["conga", 64],
+    ["(high.*timbale|timbale.*high)", 65],
+    ["(low.*timbale|timbale.*low)", 66],
     ["(hi.*agogo|agogo.*hi)", 67],
     ["agogo", 68],
     ["cabasa", 69],
@@ -39,6 +46,8 @@ instruments = [
     ["clav", 75],
     ["hi.*woodblock", 76],
     ["woodblock", 77],
+    ["(open.*cuica|cuica.*open)", 79],
+    ["cuica", 78],
     ["shaker", 82],
     ["(mut.*triangl|triangl.*mut)", 80],
     ["triangl", 81],
@@ -47,10 +56,14 @@ instruments = [
     ["tom", 45],
     ["cym", 51],
     ["\\WBD", 36],
+    ["bass", 36],
     ["\\WSD", 38],
     ["\\WCH", 42],
     ["\\WOH", 46],
 ]
+
+IGNORE = ".*(\\Wvital\\W|wavetable).*"
+SAMPLE = ".+\\.(wav|flac|aiff?|aifc)$"
 
 names = {
     27: "High Q / Laser",

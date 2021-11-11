@@ -12,12 +12,8 @@ from jinja2 import Template as J2, StrictUndefined as J2Undef
 # import pprint
 import config
 
-# LSP limits
-MAX_INSTRUMENTS = 48
-MAX_SAMPLES = 8
 
-# TODO: force MIDI instrument number
-# TODO: test one path
+# TODO: force MIDI instrument number # pylint: disable=fixme
 
 aparser = ArgumentParser()
 aparser.add_argument("-d", "--dir", dest="dir", required=True,
@@ -94,17 +90,16 @@ def guess_note(pathname):
     return 0
 
 
-wf = re.compile(r".+\.(wav|flac)$", re.I)
-ex = re.compile(r".*(/vital/|wavetable).*", re.I)
+re_sample = re.compile(config.SAMPLE, re.I)
+re_ignore = re.compile(config.IGNORE, re.I)
 for ent in scantree(path):
-    if wf.match(ent.name) and not ex.match(ent.path):
+    if re_sample.match(ent.name) and not re_ignore.match(ent.path):
         if args.lsp:
             # workaround for mono
             pan_l = '0.0' if audiofile.channels(ent.path) == 1 else '-100.0'
             if (note := guess_note(ent.path)) == 0:
                 warn(f"can't guess instrument '{ent.path}'")
                 continue
-            # print(f"note '{note}' {type(note)}")
             lsp[ent.path] = {
                 'debug': args.debug,
                 'name': ent.name,
@@ -134,17 +129,16 @@ if args.lsp:
     for file, data in lsp.items():
         note = data['midi_note']
         if note not in instruments:
-            warn(f"add {note}, total {len(instruments)}")
             instruments.append(note)
 
         if note not in samples:
             samples[note] = 0
 
         if args.limit:
-            if samples[note] >= MAX_SAMPLES:
+            if samples[note] >= config.MAX_SAMPLES:
                 warn(f"samples limit: {file} {data['midi_name']}")
                 continue
-            if len(instruments) >= MAX_INSTRUMENTS:
+            if len(instruments) >= config.MAX_INSTRUMENTS:
                 warn(f"instruments limit: {file} {data['midi_name']}")
                 continue
 
