@@ -1,11 +1,11 @@
 {% if debug -%}
-  # debug      : {{ name }} midi:{{ midi_name }}({{ midi_note }}) note:{{ lsp_note }} inst:{{ instr_num }} sample:{{ sample_num }}
-{% endif -%}
+# info       : {{ name }} midi:{{ midi_name }}({{ midi_note }}) LSP note:{{ lsp_note }} inst:{{ instr_num }} sample:{{ sample_num }}
 # channels   : {{ channels }}
 # duration   : {{ duration }}
 # samples    : {{ samples }}
 # sample rate: {{ sampling_rate }}
 # bit depth  : {{ bit_depth }}
+{%- endif %}
 
 # Channel: 0..15
 chan_{{ instr_num }} = {{ chan }}
@@ -96,8 +96,8 @@ ls_{{ instr_num }}_{{ sample_num }} = false
 rs_{{ instr_num }}_{{ sample_num }} = false
 
 # Sample left channel panorama [%]: -100.00000000..100.00000000
-# 0.00000000 for mono
 pl_{{ instr_num }}_{{ sample_num }} = {{ pan_l }}
 
 # Sample right channel panorama [%]: -100.00000000..100.00000000
 pr_{{ instr_num }}_{{ sample_num }} = 100.00000000
+
