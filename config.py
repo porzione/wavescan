@@ -52,6 +52,9 @@ instruments = [
     ["(mut.*triangl|triangl.*mut)", 80],
     ["triangl", 81],
     # last try
+    ["hat.?c", 42],
+    ["hat.?o", 46],
+    ["hat.?p", 44],
     ["hat", 42],
     ["tom", 45],
     ["cym", 51],
