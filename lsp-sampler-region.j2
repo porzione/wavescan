@@ -1,0 +1,103 @@
+{% if debug -%}
+  # debug      : {{ name }} midi:{{ midi_name }}({{ midi_note }}) note:{{ note }} inst:{{ instr_num }} sample:{{ sample_num }}
+{% endif -%}
+# channels   : {{ channels }}
+# duration   : {{ duration }}
+# samples    : {{ samples }}
+# sample rate: {{ sampling_rate }}
+# bit depth  : {{ bit_depth }}
+
+# Channel: 0..15
+chan_{{ instr_num }} = {{ chan }}
+
+# Note: 0..11
+#   0: C
+#   1: C#
+#   2: D
+#   3: D#
+#   4: E
+#   5: F
+#   6: F#
+#   7: G
+#   8: G#
+#   9: A
+#   10: A#
+#   11: B
+note_{{ instr_num }} = {{ note }}
+
+# Octave: 0..10
+#   0: -1
+#   1: 0
+#   2: 1
+#   3: 2
+#   4: 3
+#   5: 4
+#   6: 5
+#   7: 6
+#   8: 7
+#   9: 8
+#   10: 9
+oct_{{ instr_num }} = {{ oct }}
+
+# Mute Group: 0..26
+#   0: None
+#   1: A
+mgrp_{{ instr_num }} = 0
+
+# Mute on stop [boolean]: true/false
+mtg_{{ instr_num }} = false
+
+# Note-off handling [boolean]: true/false
+nto_{{ instr_num }} = false
+
+# Instrument listen [boolean]: true/false
+trg_{{ instr_num }} = false
+
+# Dynamics [%]: 0.00000000..100.00000000
+dyna_{{ instr_num }} = 0.00000000
+
+# Time drifting [ms]: 0.00000000..100.00000000
+drft_{{ instr_num }} = 0.00000000
+
+# Sample selector: 0..7
+ssel_{{ instr_num }} = 0
+
+# Sample file [pathname]
+sf_{{ instr_num }}_{{ sample_num }} = "{{ pathname }}"
+
+# Sample head cut [ms]: 0.00000000..64000.00000000
+hc_{{ instr_num }}_{{ sample_num }} = 0.00000000
+
+# Sample tail cut [ms]: 0.00000000..64000.00000000
+tc_{{ instr_num }}_{{ sample_num }} = 84.00000000
+
+# Sample fade in [ms]: 0.00000000..64000.00000000
+fi_{{ instr_num }}_{{ sample_num }} = 0.00000000
+
+# Sample fade out [ms]: 0.00000000..64000.00000000
+fo_{{ instr_num }}_{{ sample_num }} = 0.00000000
+
+# Sample makeup gain [G]: 0.00000000..10.00000000
+mk_{{ instr_num }}_{{ sample_num }} = 1.00000000
+
+# Sample velocity max [%]: 0.00000000..100.00000000
+vl_{{ instr_num }}_{{ sample_num }} = 100.00000000
+
+# Sample pre-delay [ms]: 0.00000000..100.00000000
+pd_{{ instr_num }}_{{ sample_num }} = 0.00000000
+
+# Sample enabled [boolean]: true/false
+on_{{ instr_num }}_{{ sample_num }} = true
+
+# Sample listen [boolean]: true/false
+ls_{{ instr_num }}_{{ sample_num }} = false
+
+# Sample reverse [boolean]: true/false
+rs_{{ instr_num }}_{{ sample_num }} = false
+
+# Sample left channel panorama [%]: -100.00000000..100.00000000
+# 0.00000000 for mono
+pl_{{ instr_num }}_{{ sample_num }} = {{ pan_l }}
+
+# Sample right channel panorama [%]: -100.00000000..100.00000000
+pr_{{ instr_num }}_{{ sample_num }} = 100.00000000

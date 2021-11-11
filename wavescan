@@ -1,0 +1,156 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from argparse import ArgumentParser
+import re
+from pathlib import Path
+from os import scandir
+from os.path import dirname, realpath
+from sys import stderr
+import audiofile
+from jinja2 import Template as J2
+# import pprint
+import config
+
+# LSP limits
+MAX_INSTRUMENTS = 48
+MAX_SAMPLES = 8
+
+# TODO: force MIDI instrument number
+# TODO: test one path
+
+aparser = ArgumentParser()
+aparser.add_argument("-d", "--dir", dest="dir", required=True,
+                     help="samples directory", metavar="DIR")
+aparser.add_argument("--lsp",
+                     action="store_true", dest="lsp", default=False,
+                     help="LSP multisampler output")
+aparser.add_argument("-D",
+                     action="store_true", dest="debug", default=False,
+                     help="Debug output")
+aparser.add_argument("--limit",
+                     action="store_true", dest="limit", default=False,
+                     help="Respect LSP limits and skip extra data")
+args = aparser.parse_args()
+path = Path(args.dir)
+if not path.exists():
+    exit(f'{path} does not exist')
+elif not path.is_dir():
+    exit(f'{path} is not directory')
+
+if args.lsp:
+    spath = dirname(realpath(__file__))
+    with open(f'{spath}/lsp-sampler-global.j2', 'r') as fin:
+        src = fin.read()
+    tpl_global = J2(src)
+    with open(f'{spath}/lsp-sampler-region.j2', 'r') as fin:
+        src = fin.read()
+    tpl_region = J2(src)
+    lsp = {}
+
+
+def scantree(pathname):
+    """Recursively yield DirEntry objects for given directory."""
+    for entry in scandir(pathname):
+        if entry.is_dir(follow_symlinks=False):
+            yield from scantree(entry.path)
+        else:
+            yield entry
+
+
+def print_info(ent):
+    """Print sample info"""
+    print(f'{ent.path}\n'
+          f'channels   : {audiofile.channels(ent.path)}\n'
+          f'duration   : {audiofile.duration(ent.path):.8}\n'
+          f'samples    : {audiofile.samples(ent.path)}\n'
+          f'sample rate: {audiofile.sampling_rate(ent.path)}\n'
+          f'bit depth  : {audiofile.bit_depth(ent.path)}\n')
+
+
+# array of arrays [compiled_regex, note_number]
+rx_instr = []
+for rx in config.instruments:
+    try:
+        rx_instr.append([
+            re.compile(f".*{rx[0]}.+", re.I),
+            rx[1]
+        ])
+    except re.error as err:
+        print(
+            f"problem with regex '{rx[0]}': {err}",
+            file=stderr
+        )
+
+
+def guess_note(pathname):
+    """Tryng to guess instrument from pathname"""
+    for rx in rx_instr:
+        if rx[0].match(pathname):
+            return rx[1]
+    return 0
+
+
+wf = re.compile(r".+\.(wav|flac)$", re.I)
+ex = re.compile(r".*(/vital/|wavetable).*", re.I)
+for ent in scantree(path):
+    if wf.match(ent.name) and not ex.match(ent.path):
+        if args.lsp:
+            # workaround for mono
+            pan_l = '0.0' if audiofile.channels(ent.path) == 1 else '-100.0'
+            if (note := guess_note(ent.path)) == 0:
+                print(f"can't guess instrument '{ent.path}'", file=stderr)
+                continue
+            # print(f"note '{note}' {type(note)}")
+            lsp[ent.path] = {
+                'debug': args.debug,
+                'name': ent.name,
+                'note': note % 12,
+                'midi_note': note,
+                'midi_name': config.names[note],
+                'channels': audiofile.channels(ent.path),
+                'duration': audiofile.duration(ent.path),
+                'samples': audiofile.samples(ent.path),
+                'sampling_rate': audiofile.sampling_rate(ent.path),
+                'bit_depth': audiofile.bit_depth(ent.path),
+                'chan': 0,
+                'oct': int(note / 12),
+                'pan_l': pan_l
+            }
+        else:
+            print_info(ent)
+
+if args.lsp:
+    if len(lsp) == 0:
+        print("nothing found", file=stderr)
+        exit()
+
+    print(tpl_global.render(
+        inst=0
+    ))
+    instruments = []
+    samples = {}
+    for file, data in lsp.items():
+        note = data['note']
+        if note not in instruments:
+            instruments.append(note)
+
+        if note not in samples:
+            samples[note] = 0
+
+        if args.limit:
+            if samples[note] >= MAX_SAMPLES:
+                print(f"samples limit reached for: {file}", file=stderr)
+                continue
+            if len(instruments) >= MAX_INSTRUMENTS:
+                print(f"instruments limit reached for: {file}", file=stderr)
+                continue
+
+        print(tpl_region.render(
+            pathname=file,
+            instr_num=instruments.index(note),
+            sample_num=samples[note],
+            **data
+        ))
+
+        samples[note] += 1
