@@ -25,6 +25,10 @@ use MIDI channel 10 instead of default 1
 
 `wavescan -d /audio/Drums/BespokeLiveDrums/Electric/ --lsp --channel 10`
 
+if it's just a hi-hat, use 150ms duration to decide if it's open or closed
+
+`wavescan -d /audio/Drums/BespokeLiveDrums/Electric/ --lsp --maxhh 150`
+
 also we have help
 
 ```text
@@ -34,8 +38,9 @@ usage: wavescan [-h] -d DIR [--channel CHANNEL] [--lsp] [-D] [--limit]
 optional arguments:
   -h, --help         show this help message and exit
   -d DIR, --dir DIR  samples directory
+  --maxhh HH_LEN_MS  max closed HiHat duration 1-999 ms
   --channel CHANNEL  MIDI channel (1-16)
   --lsp              LSP multisampler output
-  -D                 Debug output
-  --limit            Respect LSP limits and skip extra data
+  -D                 debug output
+  --limit            respect LSP limits and skip extra data
 ```

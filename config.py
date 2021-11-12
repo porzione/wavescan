@@ -12,11 +12,11 @@ instruments = [
     ["snare", 38],
     ["clap", 39],
     ["low.?fl.*tom", 41],
-    ["(CHH|HHC|Hat.?closed|HH.*closed|Closed.+Hat)", 42],
+    ["(CHH|HHC|Hat.?c|HH.*cl|Cl.*Hat)", 42],
     ["hi.?fl.*tom", 43],
-    ["(hh.*foot|foot.*hh)", 44],
+    ["(hh.*foot|hihat.*foot|foot.*hh|pedal.*hat)", 44],
     ["(low.?tom|tom.?low)", 45],
-    ["(OHH|HHO|Hat.?Open|HH.*Open|Open.+Hat)", 46],
+    ["(OHH|HHO|Hat.*Op|HH.*Op|Op.*Hat|Op.*HH)", 46],
     ["low.*mid.*tom", 47],
     ["hi.*mid.*tom", 48],
     ["crash", 49],
@@ -51,18 +51,15 @@ instruments = [
     ["shaker", 82],
     ["(mut.*triangl|triangl.*mut)", 80],
     ["triangl", 81],
-    # last try
-    ["hat.?c", 42],
-    ["hat.?o", 46],
-    ["hat.?p", 44],
-    ["hat", 42],
+    # 1000 => "some hihat"
+    ["hat", 1000],
+    # other doubtful drums
+    ["fl.*tom", 41],
     ["tom", 45],
     ["cym", 51],
     ["\\WBD", 36],
     ["bass", 36],
     ["\\WSD", 38],
-    ["\\WCH", 42],
-    ["\\WOH", 46],
 ]
 
 IGNORE = ".*(\\Wvital\\W|wavetable).*"

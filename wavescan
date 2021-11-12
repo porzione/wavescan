@@ -14,6 +14,9 @@ import config
 aparser = ArgumentParser()
 aparser.add_argument("-d", "--dir", dest="dir", required=True,
                      help="samples directory", metavar="DIR")
+aparser.add_argument("--maxhh", dest="maxhh", required=False,
+                     help="max closed HiHat duration 1-999 ms",
+                     metavar="HH_LEN_MS")
 aparser.add_argument("--channel", dest="channel", required=False,
                      help="MIDI channel (1-16)", metavar="CHANNEL")
 aparser.add_argument("--lsp",
@@ -21,10 +24,10 @@ aparser.add_argument("--lsp",
                      help="LSP multisampler output")
 aparser.add_argument("-D",
                      action="store_true", dest="debug", default=False,
-                     help="Debug output")
+                     help="debug output")
 aparser.add_argument("--limit",
                      action="store_true", dest="limit", default=False,
-                     help="Respect LSP limits and skip extra data")
+                     help="respect LSP limits and skip extra data")
 args = aparser.parse_args()
 path = Path(args.dir)
 if not path.exists():
@@ -51,6 +54,15 @@ if args.lsp:
     tpl_region = J2(src, undefined=J2Undef)
     lsp = {}
 
+maxhh = 0
+if args.maxhh:
+    if not args.maxhh.isnumeric():
+        exit(f"HH duration '{args.maxhh}' not a number")
+    maxhh = int(args.maxhh)
+    if not 1 <= maxhh <= 999:
+        exit(f"HH duration '{maxhh}' is out of range")
+    maxhh /= 1000
+
 
 def warn(msg):
     """print message to stderr"""
@@ -76,14 +88,27 @@ def print_info(ent):
           f'bit depth  : {audiofile.bit_depth(ent.path)}\n')
 
 
-def guess_note(ent):
+def guess_note(ent, duration):
     """Tryng to guess instrument from pathname"""
     for rx in rx_instr:
         if rx[0].match(ent.path):
+            num = rx[1]
+            dur_msg = None
+            if num == 1000:
+                # closed: 42, open: 46
+                if maxhh:
+                    (num := 46) if duration > maxhh else (num := 42)
+                    dur_msg = f"duration: {duration}, maxhh: {maxhh}"
+                else:
+                    # Answer to the Ultimate Question
+                    num = 42
             if args.debug:
-                human_name = f"{rx[0].pattern} {rx[1]} {config.names[rx[1]]}"
-                warn(f"guess {ent.name} is {human_name}")
-            return rx[1]
+                human_name = f"{rx[0].pattern} {num} {config.names[num]}"
+                msg = f"guess {ent.name} is {human_name}"
+                if dur_msg:
+                    msg = f"{msg} ({dur_msg})"
+                warn(msg)
+            return num
     return 0
 
 
@@ -107,8 +132,9 @@ for ent in scantree(path):
         if args.lsp:
             # workaround for mono
             pan_l = '0.0' if audiofile.channels(ent.path) == 1 else '-100.0'
-            if (midi_note := guess_note(ent)) == 0:
-                warn(f"can't guess instrument '{ent.path}'")
+            duration = audiofile.duration(ent.path)
+            if (midi_note := guess_note(ent, duration)) == 0:
+                warn(f"can't guess instrument: {ent.path}")
                 c_unparsed += 1
                 continue
             lsp[ent.path] = {
@@ -118,7 +144,7 @@ for ent in scantree(path):
                 'midi_note': midi_note,
                 'midi_name': config.names[midi_note],
                 'channels': audiofile.channels(ent.path),
-                'duration': audiofile.duration(ent.path),
+                'duration': duration,
                 'samples': audiofile.samples(ent.path),
                 'sampling_rate': audiofile.sampling_rate(ent.path),
                 'bit_depth': audiofile.bit_depth(ent.path),
