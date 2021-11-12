@@ -15,7 +15,7 @@ aparser = ArgumentParser()
 aparser.add_argument("-d", "--dir", dest="dir", required=True,
                      help="samples directory", metavar="DIR")
 aparser.add_argument("--channel", dest="channel", required=False,
-                     help="MIDI channel (0-15)", metavar="CHANNEL")
+                     help="MIDI channel (1-16)", metavar="CHANNEL")
 aparser.add_argument("--lsp",
                      action="store_true", dest="lsp", default=False,
                      help="LSP multisampler output")
@@ -37,8 +37,9 @@ if args.channel:
     if not args.channel.isnumeric():
         exit(f"channel '{args.channel}' not a number")
     midi_channel = int(args.channel)
-    if not 0 <= midi_channel <= 15:
+    if not 1 <= midi_channel <= 16:
         exit(f"channel '{midi_channel}' is out of range")
+    midi_channel -= 1
 
 if args.lsp:
     spath = dirname(realpath(__file__))
@@ -100,6 +101,7 @@ for rx in config.instruments:
 
 re_sample = re.compile(config.SAMPLE, re.I)
 re_ignore = re.compile(config.IGNORE, re.I)
+c_unparsed = 0
 for ent in scantree(path):
     if re_sample.match(ent.name) and not re_ignore.match(ent.path):
         if args.lsp:
@@ -107,6 +109,7 @@ for ent in scantree(path):
             pan_l = '0.0' if audiofile.channels(ent.path) == 1 else '-100.0'
             if (midi_note := guess_note(ent)) == 0:
                 warn(f"can't guess instrument '{ent.path}'")
+                c_unparsed += 1
                 continue
             lsp[ent.path] = {
                 'debug': args.debug,
@@ -134,6 +137,8 @@ if args.lsp:
     print(tpl_global.render(inst=0))
     instruments = []
     samples = {}
+    c_skipped = 0
+    c_samples = 0
     for file, data in sorted(lsp.items(), key=lambda x: x[1]['midi_note']):
         midi_note = data['midi_note']
         if midi_note not in instruments:
@@ -145,9 +150,11 @@ if args.lsp:
         if args.limit:
             if samples[midi_note] >= config.MAX_SAMPLES:
                 warn(f"samples limit: {file} {data['midi_name']}")
+                c_skipped += 1
                 continue
             if len(instruments) >= config.MAX_INSTRUMENTS:
                 warn(f"instruments limit: {file} {data['midi_name']}")
+                c_skipped += 1
                 continue
 
         print(tpl_region.render(
@@ -158,3 +165,10 @@ if args.lsp:
         ))
 
         samples[midi_note] += 1
+        c_samples += 1
+
+    print(f"# skipped (limit): {c_skipped}\n"
+          f"# unparsed: {c_unparsed}\n"
+          f"# instruments: {len(instruments)}\n"
+          f"# samples: {c_samples}"
+          )
