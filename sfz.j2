@@ -2,7 +2,7 @@
 {% if debug -%}
 // midi name  : {{ region['midi_name'] }}
 {%- endif %}
-<group>key={{ region['midi_note'] }}
+<group> key={{ region['midi_note'] }} loop_mode=one_shot
 {% for sample in region['samples'] -%}
 {% if debug %}
 // channels   : {{ sample['channels'] }}
@@ -11,7 +11,7 @@
 // sample rate: {{ sample['sampling_rate'] }}
 // bit depth  : {{ sample['bit_depth'] }}
 {%- endif %}
-<region>sample={{ sample['pathname'] }}
+<region> sample={{ sample['pathname'] }}
 {%- endfor %}
 
 {% endfor %}
