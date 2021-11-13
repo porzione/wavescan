@@ -1,4 +1,4 @@
-# prepare LSP multisampler config from sample files (and SFZ WIP)
+# generate LSP sampler config (or SFZ bank) from sample files
 
 Find all wav/flac/aif samples in provided with `-d` directory and print text config for importing to [LSP multisampler](https://lsp-plug.in/?page=manuals). Debug messages are printing to stderr.
 
@@ -29,18 +29,23 @@ if it's just a hi-hat, use 150ms duration to decide if it's open or closed
 
 `wavescan -d /audio/Drums/BespokeLiveDrums/Electric/ --lsp --maxhh 150`
 
+make SFZ soundfont
+
+`wavescan -d /audio/Drums/5Pin --sfz`
+
 also we have help
 
 ```text
 wavescan --help
-usage: wavescan [-h] -d DIR [--channel CHANNEL] [--lsp] [-D] [--limit]
+usage: wavescan [-h] -d DIR [--maxhh HH_LEN_MS] [--channel CHANNEL] [--lsp] [--sfz] [-D] [--limit]
 
 optional arguments:
   -h, --help         show this help message and exit
   -d DIR, --dir DIR  samples directory
   --maxhh HH_LEN_MS  max closed HiHat duration 1-999 ms
-  --channel CHANNEL  MIDI channel (1-16)
-  --lsp              LSP multisampler output
+  --channel CHANNEL  MIDI channel 1-16 (LSP)
+  --lsp              LSP output
+  --sfz              SFZ output
   -D                 debug output
   --limit            respect LSP limits and skip extra data
 ```

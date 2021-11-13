@@ -18,10 +18,10 @@ aparser.add_argument("--maxhh", dest="maxhh", required=False,
                      help="max closed HiHat duration 1-999 ms",
                      metavar="HH_LEN_MS")
 aparser.add_argument("--channel", dest="channel", required=False,
-                     help="MIDI channel (1-16)", metavar="CHANNEL")
+                     help="MIDI channel 1-16 (LSP)", metavar="CHANNEL")
 aparser.add_argument("--lsp",
                      action="store_true", dest="lsp", default=False,
-                     help="LSP multisampler output")
+                     help="LSP output")
 aparser.add_argument("--sfz",
                      action="store_true", dest="sfz", default=False,
                      help="SFZ output")
@@ -167,19 +167,23 @@ for ent in scantree(path):
                 warn(f"can't guess instrument: {ent.path}")
                 c_unparsed += 1
                 continue
-            lsp[ent.path] = {
-                'debug': args.debug,
+            if midi_note not in sfz:
+                sfz[midi_note] = []
+            sfz[midi_note].append({
+                'pathname': ent.path,
                 'name': ent.name,
-                'midi_note': midi_note,
-                'midi_name': config.names[midi_note],
                 'channels': audiofile.channels(ent.path),
                 'duration': duration,
                 'samples': audiofile.samples(ent.path),
                 'sampling_rate': audiofile.sampling_rate(ent.path),
                 'bit_depth': audiofile.bit_depth(ent.path),
-            }
+            })
         else:
             print_info(ent)
+
+# import pprint
+# pprint.pprint(sfz)
+# exit()
 
 if args.lsp:
     if len(lsp) == 0:
@@ -191,7 +195,7 @@ if args.lsp:
     samples = {}
     c_skipped = 0
     c_samples = 0
-    for file, data in sorted(lsp.items(), key=lambda x: x[1]['midi_note']):
+    for pathname, data in sorted(lsp.items(), key=lambda x: x[1]['midi_note']):
         midi_note = data['midi_note']
         if midi_note not in regions:
             regions.append(midi_note)
@@ -201,16 +205,16 @@ if args.lsp:
 
         if args.limit:
             if samples[midi_note] >= config.MAX_SAMPLES:
-                warn(f"samples limit: {file} {data['midi_name']}")
+                warn(f"samples limit: {pathname} {data['midi_name']}")
                 c_skipped += 1
                 continue
             if len(regions) >= config.MAX_INSTRUMENTS:
-                warn(f"instruments limit: {file} {data['midi_name']}")
+                warn(f"instruments limit: {pathname} {data['midi_name']}")
                 c_skipped += 1
                 continue
 
         print(tpl_region.render(
-            pathname=file,
+            pathname=pathname,
             instr_num=regions.index(midi_note),
             sample_num=samples[midi_note],
             **data
@@ -231,27 +235,24 @@ elif args.sfz:
         exit()
 
     regions = []
-    samples = {}
     c_samples = 0
-    for file, data in sorted(sfz.items(), key=lambda x: x[1]['midi_note']):
-        midi_note = data['midi_note']
-        if midi_note not in regions:
-            regions.append(midi_note)
 
-        if midi_note not in samples:
-            samples[midi_note] = 0
+    for reg_key, samples in sorted(sfz.items()):
+        regions.append({
+            'midi_note': reg_key,
+            'midi_name': config.names[reg_key],
+            'samples': samples
+        })
 
-        print(tpl_region.render(
-            pathname=file,
-            instr_num=regions.index(midi_note),
-            sample_num=samples[midi_note],
-            **data
-        ))
+        c_samples += len(samples)
 
-        samples[midi_note] += 1
-        c_samples += 1
+    print(tpl_sfz.render({
+        'regions': regions,
+        'debug': args.debug
+        }))
 
-    print(f"# unparsed: {c_unparsed}\n"
-          f"# instruments: {len(regions)}\n"
-          f"# samples: {c_samples}"
-          )
+    if args.debug:
+        print(f"# unparsed: {c_unparsed}\n"
+              f"# regions: {len(sfz)}\n"
+              f"# samples: {c_samples}"
+              )
