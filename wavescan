@@ -252,7 +252,7 @@ elif args.sfz:
         }))
 
     if args.debug:
-        print(f"# unparsed: {c_unparsed}\n"
-              f"# regions: {len(sfz)}\n"
-              f"# samples: {c_samples}"
+        print(f"// unparsed: {c_unparsed}\n"
+              f"// regions: {len(sfz)}\n"
+              f"// samples: {c_samples}"
               )

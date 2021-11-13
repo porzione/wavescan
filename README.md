@@ -1,10 +1,10 @@
-# generate LSP sampler config (or SFZ bank) from sample files
+# Generate drum kit for LSP sampler or SFZ from audio files
 
-Find all wav/flac/aif samples in provided with `-d` directory and print text config for importing to [LSP multisampler](https://lsp-plug.in/?page=manuals). Debug messages are printing to stderr.
+Find wav/flac/aif samples in provided with `-d` directory and print text config for importing into [LSP](https://lsp-plug.in/) sampler. SFZ output contains only key and sample opcodes, tested with [sfizz](https://sfz.tools/sfizz/). Debug messages are printing to stderr.
 
 ## requirements
 
-python 3 with couple of modules
+python 3.9 with couple of modules
 
 ```bash
 pip install audiofile
@@ -19,7 +19,7 @@ scan directory tree for samples, store config in 'dk900.cfg'
 
 print debug messages and add comments to config  (`-D`), also respect LSP limits (`--limit`) with max 48 instruments and 8 samples per each
 
-`wavescan -d /audio/Drums/KITS/KIT_TECH/ --lsp -D --limit  > SFZ_TECH.cfg`
+`wavescan -d /audio/Drums/KITS/KIT_TECH/ --lsp -D --limit > SFZ_TECH.cfg`
 
 use MIDI channel 10 instead of default 1
 
@@ -29,9 +29,9 @@ if it's just a hi-hat, use 150ms duration to decide if it's open or closed
 
 `wavescan -d /audio/Drums/BespokeLiveDrums/Electric/ --lsp --maxhh 150`
 
-make SFZ soundfont
+print SFZ soundfont
 
-`wavescan -d /audio/Drums/5Pin --sfz`
+`wavescan -d /audio/Drums/5Pin --sfz > ~/home/Music/SFZ/5Pin.sfz`
 
 also we have help
 
