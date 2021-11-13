@@ -143,7 +143,7 @@ for ent in scantree(path):
             pan_l = '0.0' if audiofile.channels(ent.path) == 1 else '-100.0'
             duration = audiofile.duration(ent.path)
             if (midi_note := guess_note(ent, duration)) == 0:
-                warn(f"can't guess instrument: {ent.path}")
+                warn(f"can't guess: {ent.path}")
                 c_unparsed += 1
                 continue
             lsp[ent.path] = {
@@ -171,7 +171,6 @@ for ent in scantree(path):
                 sfz[midi_note] = []
             sfz[midi_note].append({
                 'pathname': ent.path,
-                'name': ent.name,
                 'channels': audiofile.channels(ent.path),
                 'duration': duration,
                 'samples': audiofile.samples(ent.path),
@@ -180,10 +179,6 @@ for ent in scantree(path):
             })
         else:
             print_info(ent)
-
-# import pprint
-# pprint.pprint(sfz)
-# exit()
 
 if args.lsp:
     if len(lsp) == 0:
