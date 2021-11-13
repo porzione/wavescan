@@ -1,0 +1,16 @@
+//  https://sfzformat.com/opcodes/
+{% for region in regions %}
+<group>key={{ midi_note }}
+  {% for sample in region %}
+{% if debug -%}
+# info       : {{ sample['name'] }} midi:{{ sample['midi_name'] }}({{ sample['midi_note'] }})
+# channels   : {{ sample['channels'] }}
+# duration   : {{ sample['duration'] }}
+# samples    : {{ sample['samples'] }}
+# sample rate: {{ sample['sampling_rate'] }}
+# bit depth  : {{ sample['bit_depth'] }}
+{%- endif %}
+sample={{ pathname }}
+  {% endfor %}
+{% endfor %}
+<region>

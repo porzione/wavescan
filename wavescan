@@ -22,6 +22,9 @@ aparser.add_argument("--channel", dest="channel", required=False,
 aparser.add_argument("--lsp",
                      action="store_true", dest="lsp", default=False,
                      help="LSP multisampler output")
+aparser.add_argument("--sfz",
+                     action="store_true", dest="sfz", default=False,
+                     help="SFZ output")
 aparser.add_argument("-D",
                      action="store_true", dest="debug", default=False,
                      help="debug output")
@@ -53,6 +56,12 @@ if args.lsp:
         src = fin.read()
     tpl_region = J2(src, undefined=J2Undef)
     lsp = {}
+elif args.sfz:
+    spath = dirname(realpath(__file__))
+    with open(f'{spath}/sfz.j2', 'r', encoding='ascii') as fin:
+        src = fin.read()
+    tpl_sfz = J2(src, undefined=J2Undef)
+    sfz = {}
 
 maxhh = 0
 if args.maxhh:
@@ -152,6 +161,23 @@ for ent in scantree(path):
                 'oct': int(midi_note / 12),
                 'pan_l': pan_l
             }
+        elif args.sfz:
+            duration = audiofile.duration(ent.path)
+            if (midi_note := guess_note(ent, duration)) == 0:
+                warn(f"can't guess instrument: {ent.path}")
+                c_unparsed += 1
+                continue
+            lsp[ent.path] = {
+                'debug': args.debug,
+                'name': ent.name,
+                'midi_note': midi_note,
+                'midi_name': config.names[midi_note],
+                'channels': audiofile.channels(ent.path),
+                'duration': duration,
+                'samples': audiofile.samples(ent.path),
+                'sampling_rate': audiofile.sampling_rate(ent.path),
+                'bit_depth': audiofile.bit_depth(ent.path),
+            }
         else:
             print_info(ent)
 
@@ -161,14 +187,14 @@ if args.lsp:
         exit()
 
     print(tpl_global.render(inst=0))
-    instruments = []
+    regions = []
     samples = {}
     c_skipped = 0
     c_samples = 0
     for file, data in sorted(lsp.items(), key=lambda x: x[1]['midi_note']):
         midi_note = data['midi_note']
-        if midi_note not in instruments:
-            instruments.append(midi_note)
+        if midi_note not in regions:
+            regions.append(midi_note)
 
         if midi_note not in samples:
             samples[midi_note] = 0
@@ -178,14 +204,14 @@ if args.lsp:
                 warn(f"samples limit: {file} {data['midi_name']}")
                 c_skipped += 1
                 continue
-            if len(instruments) >= config.MAX_INSTRUMENTS:
+            if len(regions) >= config.MAX_INSTRUMENTS:
                 warn(f"instruments limit: {file} {data['midi_name']}")
                 c_skipped += 1
                 continue
 
         print(tpl_region.render(
             pathname=file,
-            instr_num=instruments.index(midi_note),
+            instr_num=regions.index(midi_note),
             sample_num=samples[midi_note],
             **data
         ))
@@ -195,6 +221,37 @@ if args.lsp:
 
     print(f"# skipped (limit): {c_skipped}\n"
           f"# unparsed: {c_unparsed}\n"
-          f"# instruments: {len(instruments)}\n"
+          f"# instruments: {len(regions)}\n"
+          f"# samples: {c_samples}"
+          )
+
+elif args.sfz:
+    if len(sfz) == 0:
+        warn("nothing found")
+        exit()
+
+    regions = []
+    samples = {}
+    c_samples = 0
+    for file, data in sorted(sfz.items(), key=lambda x: x[1]['midi_note']):
+        midi_note = data['midi_note']
+        if midi_note not in regions:
+            regions.append(midi_note)
+
+        if midi_note not in samples:
+            samples[midi_note] = 0
+
+        print(tpl_region.render(
+            pathname=file,
+            instr_num=regions.index(midi_note),
+            sample_num=samples[midi_note],
+            **data
+        ))
+
+        samples[midi_note] += 1
+        c_samples += 1
+
+    print(f"# unparsed: {c_unparsed}\n"
+          f"# instruments: {len(regions)}\n"
           f"# samples: {c_samples}"
           )

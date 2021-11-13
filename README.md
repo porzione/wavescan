@@ -1,4 +1,4 @@
-# prepare LSP multisampler config from sample files
+# prepare LSP multisampler config from sample files (and SFZ WIP)
 
 Find all wav/flac/aif samples in provided with `-d` directory and print text config for importing to [LSP multisampler](https://lsp-plug.in/?page=manuals). Debug messages are printing to stderr.
 
