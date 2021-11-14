@@ -5,10 +5,11 @@ from argparse import ArgumentParser
 import re
 from pathlib import Path
 from os import scandir
-from os.path import dirname, realpath
+from os.path import dirname, realpath, relpath
 from sys import stderr
 import audiofile
 from jinja2 import Template as J2, StrictUndefined as J2Undef
+# import pprint
 import config
 
 aparser = ArgumentParser()
@@ -28,6 +29,9 @@ aparser.add_argument("--sfz-mk",
 aparser.add_argument("--sfz",
                      action="store_true", dest="sfz", default=False,
                      help="SFZ output")
+aparser.add_argument("--spdk",
+                     action="store_true", dest="spdk", default=False,
+                     help="Speedrum Lite output")
 aparser.add_argument("-D",
                      action="store_true", dest="debug", default=False,
                      help="debug output")
@@ -50,21 +54,25 @@ if args.channel:
         exit(f"channel '{midi_channel}' is out of range")
     midi_channel -= 1
 
+s_path = dirname(realpath(__file__))
 if args.lsp:
-    spath = dirname(realpath(__file__))
-    with open(f'{spath}/lsp-sampler-global.j2', 'r', encoding='ascii') as fin:
+    with open(f'{s_path}/lsp-sampler-global.j2', 'r', encoding='ascii') as fin:
         src = fin.read()
     tpl_global = J2(src, undefined=J2Undef)
-    with open(f'{spath}/lsp-sampler-region.j2', 'r', encoding='ascii') as fin:
+    with open(f'{s_path}/lsp-sampler-region.j2', 'r', encoding='ascii') as fin:
         src = fin.read()
     tpl_region = J2(src, undefined=J2Undef)
     lsp = {}
 elif args.sfz:
-    spath = dirname(realpath(__file__))
-    with open(f'{spath}/sfz.j2', 'r', encoding='ascii') as fin:
+    with open(f'{s_path}/sfz.j2', 'r', encoding='ascii') as fin:
         src = fin.read()
     tpl_sfz = J2(src, undefined=J2Undef)
     sfz = {}
+elif args.spdk:
+    with open(f'{s_path}/spdk.j2', 'r', encoding='ascii') as fin:
+        src = fin.read()
+    tpl_spdk = J2(src, undefined=J2Undef)
+    spdk = {}
 
 maxhh = 0
 if args.maxhh:
@@ -180,6 +188,25 @@ for ent in scantree(path):
                 'sampling_rate': audiofile.sampling_rate(ent.path),
                 'bit_depth': audiofile.bit_depth(ent.path),
             })
+        elif args.spdk:
+            duration = audiofile.duration(ent.path)
+            if (midi_note := guess_note(ent, duration)) == 0:
+                warn(f"can't guess instrument: {ent.path}")
+                c_unparsed += 1
+                continue
+            if midi_note not in spdk:
+                spdk[midi_note] = []
+            spdk[midi_note].append({
+                'abs_pathname': ent.path,
+                'rel_pathname': relpath(ent.path),
+                'channels': audiofile.channels(ent.path),
+                'duration': duration,
+                'samples': audiofile.samples(ent.path),
+                'sampling_rate': audiofile.sampling_rate(ent.path),
+                'bit_depth': audiofile.bit_depth(ent.path),
+                'num': len(spdk[midi_note])
+            })
+            pass
         else:
             print_info(ent)
 
@@ -255,3 +282,29 @@ elif args.sfz:
               f"// regions: {len(sfz)}\n"
               f"// samples: {c_samples}"
               )
+
+elif args.spdk:
+    if len(spdk) == 0:
+        warn("nothing found")
+        exit()
+
+    pads = []
+
+    for reg_key, layers in sorted(spdk.items()):
+        # pprint.pprint(layers)
+        # 16 pads in Lite, 32 in paid
+        if 36 <= reg_key <= 52:
+            pads.append({
+                'num': reg_key-36,
+                'out': reg_key-36,
+                'name': config.names[reg_key],
+                'midi': reg_key,
+                'layers': layers,
+            })
+
+        # pprint.pprint(pads)
+
+    print(tpl_spdk.render({
+        'pads': pads,
+        'debug': args.debug
+        }))

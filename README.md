@@ -1,6 +1,6 @@
 # Generate drum kit for LSP sampler or SFZ from audio files
 
-Find wav/flac/aif samples in provided with `-d` directory and print text config for importing into [LSP](https://lsp-plug.in/) sampler. SFZ output contains only key and sample opcodes, tested with [sfizz](https://sfz.tools/sfizz/). Debug messages are printing to stderr.
+Find wav/flac/aif samples in provided with `-d` directory and print text config for importing into [LSP](https://lsp-plug.in/) sampler or [Speedrum Lite](https://www.apisoniclabs.com/freeware.html#speedrum-lite). SFZ output contains only key and sample opcodes, tested with [sfizz](https://sfz.tools/sfizz/). Debug messages are printing to stderr.
 
 ## requirements
 
@@ -36,3 +36,7 @@ print SFZ soundfont
 the same but with extended midi key syntax
 
 `wavescan -d /audio/Drums/5Pin --sfz --sfz-mk > ~/home/Music/SFZ/5Pin.sfz`
+
+print Speedrum Lite bank
+
+`wavescan -d /audio/Drums/5Pin --spdk > ~/home/Music/SFZ/5PinAuto.spdk`
