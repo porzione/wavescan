@@ -6,13 +6,14 @@ MAX_INSTRUMENTS = 48
 MAX_SAMPLES = 8
 
 instruments = [
+    ["laser", 27],
     ["(kick|kik|BassDrum)", 36],
     ["(side|rim)", 37],
-    ["esnare", 40],
+    ["(esnare|electr.+snare|snare.+electr)", 40],
     ["snare", 38],
     ["clap", 39],
     ["low.?fl.*tom", 41],
-    ["(CHH|HHC|Hat.?c|HH.*cl|Cl.*Hat|\\WCH)", 42],
+    ["(CHH|HHC|Hat.?c|HH.*c~/Music/SFZ/5pin_DrumKit.sfzl|Cl.*Hat|\\WCH)", 42],
     ["hi.?fl.*tom", 43],
     ["(hh.*foot|hihat.*foot|foot.*hh|pedal.*hat)", 44],
     ["(low.?tom|tom.?low)", 45],

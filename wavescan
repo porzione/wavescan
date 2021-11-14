@@ -22,6 +22,9 @@ aparser.add_argument("--channel", dest="channel", required=False,
 aparser.add_argument("--lsp",
                      action="store_true", dest="lsp", default=False,
                      help="LSP output")
+aparser.add_argument("--sfz-mk",
+                     action="store_true", dest="sfz_mk", default=False,
+                     help="Add lokey/hikey/pitch instead of just key")
 aparser.add_argument("--sfz",
                      action="store_true", dest="sfz", default=False,
                      help="SFZ output")
@@ -242,6 +245,7 @@ elif args.sfz:
         c_samples += len(samples)
 
     print(tpl_sfz.render({
+        'multikey': args.sfz_mk,
         'regions': regions,
         'debug': args.debug
         }))

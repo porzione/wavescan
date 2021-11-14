@@ -2,7 +2,7 @@
 {% if debug -%}
 // midi name  : {{ region['midi_name'] }}
 {%- endif %}
-<group> key={{ region['midi_note'] }} loop_mode=one_shot
+<group> loop_mode=one_shot {% if multikey %}pitch_keycenter={{ region['midi_note'] }} lokey={{ region['midi_note'] }} hikey={{ region['midi_note'] }} {% else %}key={{ region['midi_note'] }} {% endif %}
 {% for sample in region['samples'] -%}
 {% if debug %}
 // channels   : {{ sample['channels'] }}

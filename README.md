@@ -25,7 +25,7 @@ use MIDI channel 10 instead of default 1
 
 `wavescan -d /audio/Drums/BespokeLiveDrums/Electric/ --lsp --channel 10`
 
-if it's just a hi-hat, use 150ms duration to decide if it's open or closed
+if it's unknown hi-hat, use 150ms duration to decide if it's open or closed
 
 `wavescan -d /audio/Drums/BespokeLiveDrums/Electric/ --lsp --maxhh 150`
 
@@ -33,19 +33,6 @@ print SFZ soundfont
 
 `wavescan -d /audio/Drums/5Pin --sfz > ~/home/Music/SFZ/5Pin.sfz`
 
-also we have help
+the same but with extended midi key syntax
 
-```text
-wavescan --help
-usage: wavescan [-h] -d DIR [--maxhh HH_LEN_MS] [--channel CHANNEL] [--lsp] [--sfz] [-D] [--limit]
-
-optional arguments:
-  -h, --help         show this help message and exit
-  -d DIR, --dir DIR  samples directory
-  --maxhh HH_LEN_MS  max closed HiHat duration 1-999 ms
-  --channel CHANNEL  MIDI channel 1-16 (LSP)
-  --lsp              LSP output
-  --sfz              SFZ output
-  -D                 debug output
-  --limit            respect LSP limits and skip extra data
-```
+`wavescan -d /audio/Drums/5Pin --sfz --sfz-mk > ~/home/Music/SFZ/5Pin.sfz`
