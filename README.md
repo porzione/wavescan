@@ -1,6 +1,6 @@
-# Generate drum kit for LSP sampler or SFZ from audio files
+# Generate drum kits from audio files
 
-Find wav/flac/aif samples in provided with `-d` directory and print text config for importing into [LSP](https://lsp-plug.in/) sampler or [Speedrum Lite](https://www.apisoniclabs.com/freeware.html#speedrum-lite). SFZ output contains only key and sample opcodes, tested with [sfizz](https://sfz.tools/sfizz/). Debug messages are printing to stderr.
+Find wav/flac/aif samples in provided with `-d` directory and print text config for importing into [LSP](https://lsp-plug.in/) sampler or [Speedrum Lite](https://www.apisoniclabs.com/freeware.html#speedrum-lite). SFZ output contains only key and sample opcodes, tested with [sfizz](https://sfz.tools/sfizz/) and [Redux](https://www.renoise.com/products/redux). Debug messages are printing to stderr.
 
 ## requirements
 
