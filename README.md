@@ -39,4 +39,4 @@ the same but with extended midi key syntax
 
 print Speedrum Lite bank
 
-`wavescan -d /audio/Drums/5Pin --spdk > ~/home/Music/SFZ/5PinAuto.spdk`
+`wavescan -d /audio/Drums/5Pin --spdk`
