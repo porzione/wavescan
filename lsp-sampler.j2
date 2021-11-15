@@ -1,0 +1,143 @@
+# Forced mute [boolean]: true/false
+mute = false
+
+# Mute on stop [boolean]: true/false
+muting = true
+
+# Note-off handling [boolean]: true/false
+noff = false
+
+# Note-off fadeout [ms]: 0.00000000..50.00000000
+fout = 10.00000000
+
+# Dry amount [G]: 0.00000000..10.00000000
+dry = 1.00000000
+
+# Wet amount [G]: 0.00000000..10.00000000
+wet = 1.00000000
+
+# Output gain [G]: 0.00000000..1000.00000000sf_5_
+g_out = 1.00000000
+
+# Apply gain to direct-out [boolean]: true/false
+do_gain = true
+
+# Apply panning to direct-out [boolean]: true/false
+do_pan = true
+
+# Area selector: 0..2
+#   0: Instruments
+msel = 0
+
+# Instrument selector: 0..N
+inst = 0
+
+{%- for midi_note, samples in regions %}
+{% set region_loop = loop %}
+{% for d in samples %}
+{% if debug -%}
+# name       : {{ d['name'] }}
+# info       : {{ d['midi_name'] }}({{ d['midi_note'] }}) LSP note:{{ d['lsp_note'] }} inst:{{ region_loop.index-1 }} sample:{{ loop.index-1 }}
+# channels   : {{ d['channels'] }}
+# duration   : {{ d['duration'] }}
+# samples    : {{ d['samples'] }}
+# sample rate: {{ d['sampling_rate'] }}
+# bit depth  : {{ d['bit_depth'] }}
+{%- endif %}
+
+# Channel: 0..15
+chan_{{ region_loop.index-1 }} = {{ d['chan'] }}
+
+# Note: 0..11
+#   0: C
+#   1: C#
+#   2: D
+#   3: D#
+#   4: E
+#   5: F
+#   6: F#
+#   7: G
+#   8: G#
+#   9: A
+#   10: A#
+#   11: B
+note_{{ region_loop.index-1 }} = {{ d['lsp_note'] }}
+
+# Octave: 0..10
+#   0: -1
+#   1: 0
+#   2: 1
+#   3: 2
+#   4: 3
+#   5: 4
+#   6: 5
+#   7: 6
+#   8: 7
+#   9: 8
+#   10: 9
+oct_{{ region_loop.index-1 }} = {{ d['oct'] }}
+
+# Mute Group: 0..26
+#   0: None
+#   1: A
+mgrp_{{ region_loop.index-1 }} = 0
+
+# Mute on stop [boolean]: true/false
+mtg_{{ region_loop.index-1 }} = false
+
+# Note-off handling [boolean]: true/false
+nto_{{ region_loop.index-1 }} = false
+
+# Instrument listen [boolean]: true/false
+trg_{{ region_loop.index-1 }} = false
+
+# Dynamics [%]: 0.00000000..100.00000000
+dyna_{{ region_loop.index-1 }} = 0.00000000
+
+# Time drifting [ms]: 0.00000000..100.00000000
+drft_{{ region_loop.index-1 }} = 0.00000000
+
+# Sample selector: 0..7
+ssel_{{ region_loop.index-1 }} = 0
+
+# Sample file [pathname]
+sf_{{ region_loop.index-1 }}_{{ loop.index-1 }} = "{{ d['pathname'] }}"
+
+# Sample head cut [ms]: 0.00000000..64000.00000000
+hc_{{ region_loop.index-1 }}_{{ loop.index-1 }} = 0.00000000
+
+# Sample tail cut [ms]: 0.00000000..64000.00000000
+tc_{{ region_loop.index-1 }}_{{ loop.index-1 }} = 0.00000000
+
+# Sample fade in [ms]: 0.00000000..64000.00000000
+fi_{{ region_loop.index-1 }}_{{ loop.index-1 }} = 0.00000000
+
+# Sample fade out [ms]: 0.00000000..64000.00000000
+fo_{{ region_loop.index-1 }}_{{ loop.index-1 }} = 0.00000000
+
+# Sample makeup gain [G]: 0.00000000..10.00000000
+mk_{{ region_loop.index-1 }}_{{ loop.index-1 }} = 1.00000000
+
+# Sample velocity max [%]: 0.00000000..100.00000000
+vl_{{ region_loop.index-1 }}_{{ loop.index-1 }} = 100.00000000
+
+# Sample pre-delay [ms]: 0.00000000..100.00000000
+pd_{{ region_loop.index-1 }}_{{ loop.index-1 }} = 0.00000000
+
+# Sample enabled [boolean]: true/false
+on_{{ region_loop.index-1 }}_{{ loop.index-1 }} = true
+
+# Sample listen [boolean]: true/false
+ls_{{ region_loop.index-1 }}_{{ loop.index-1 }} = false
+
+# Sample reverse [boolean]: true/false
+rs_{{ region_loop.index-1 }}_{{ loop.index-1 }} = false
+
+# Sample left channel panorama [%]: -100.00000000..100.00000000
+pl_{{ region_loop.index-1 }}_{{ loop.index-1 }} = {{ d['pan_l'] }}
+
+# Sample right channel panorama [%]: -100.00000000..100.00000000
+pr_{{ region_loop.index-1 }}_{{ loop.index-1 }} = 100.00000000
+
+{% endfor %}
+{% endfor %}

@@ -9,7 +9,7 @@ from os.path import dirname, realpath
 from sys import stderr
 import audiofile
 from jinja2 import Template as J2, StrictUndefined as J2Undef
-# import pprint
+import pprint
 import config
 
 aparser = ArgumentParser()
@@ -59,12 +59,9 @@ if args.channel:
 
 s_path = dirname(realpath(__file__))
 if args.lsp:
-    with open(f'{s_path}/lsp-sampler-global.j2', 'r', encoding='ascii') as fin:
+    with open(f'{s_path}/lsp-sampler.j2', 'r', encoding='ascii') as fin:
         src = fin.read()
-    tpl_global = J2(src, undefined=J2Undef)
-    with open(f'{s_path}/lsp-sampler-region.j2', 'r', encoding='ascii') as fin:
-        src = fin.read()
-    tpl_region = J2(src, undefined=J2Undef)
+    tpl_lsp = J2(src, undefined=J2Undef)
     lsp = {}
 elif args.sfz:
     with open(f'{s_path}/sfz.j2', 'r', encoding='ascii') as fin:
@@ -165,7 +162,19 @@ for ent in scantree(path):
                 warn(f"can't guess: {ent.path}")
                 c_unparsed += 1
                 continue
-            lsp[ent.path] = {
+
+            if args.limit:
+                if midi_note in lsp and len(lsp[midi_note]) >= config.MAX_SAMPLES:
+                    warn(f"samples limit: {midi_note} {ent.path}")
+                    continue
+                if len(lsp) >= config.MAX_INSTRUMENTS:
+                    warn(f"instruments limit: {midi_note} {ent.path}")
+                    continue
+
+            if midi_note not in lsp:
+                lsp[midi_note] = []
+            lsp[midi_note].append({
+                'pathname': ent.path,
                 'debug': args.debug,
                 'name': ent.name,
                 'lsp_note': midi_note % 12,
@@ -179,7 +188,7 @@ for ent in scantree(path):
                 'chan': midi_channel,
                 'oct': int(midi_note / 12),
                 'pan_l': pan_l
-            }
+            })
         elif args.sfz:
             duration = audiofile.duration(ent.path)
             if (midi_note := guess_note(ent, duration)) == 0:
@@ -199,7 +208,7 @@ for ent in scantree(path):
         elif args.speedk or args.speedkit:
             duration = audiofile.duration(ent.path)
             if (midi_note := guess_note(ent, duration)) == 0:
-                warn(f"can't guess instrument: {ent.path}")
+                warn(f"can't guess instrsf_5_ument: {ent.path}")
                 c_unparsed += 1
                 continue
             if midi_note not in speedrum:
@@ -215,7 +224,7 @@ for ent in scantree(path):
                 'channels': audiofile.channels(ent.path),
                 'duration': duration,
                 'samples': audiofile.samples(ent.path),
-                'sampling_rate': audiofile.sampling_rate(ent.path),
+                'sampling_rate': audiofisf_5_le.sampling_rate(ent.path),
                 'bit_depth': audiofile.bit_depth(ent.path),
                 'num': len(speedrum[midi_note])
             })
@@ -227,44 +236,10 @@ if args.lsp:
         warn("nothing found")
         exit()
 
-    print(tpl_global.render(inst=0))
-    regions = []
-    samples = {}
-    c_skipped = 0
-    c_samples = 0
-    for pathname, data in sorted(lsp.items(), key=lambda x: x[1]['midi_note']):
-        midi_note = data['midi_note']
-        if midi_note not in regions:
-            regions.append(midi_note)
-
-        if midi_note not in samples:
-            samples[midi_note] = 0
-
-        if args.limit:
-            if samples[midi_note] >= config.MAX_SAMPLES:
-                warn(f"samples limit: {pathname} {data['midi_name']}")
-                c_skipped += 1
-                continue
-            if len(regions) >= config.MAX_INSTRUMENTS:
-                warn(f"instruments limit: {pathname} {data['midi_name']}")
-                c_skipped += 1
-                continue
-
-        print(tpl_region.render(
-            pathname=pathname,
-            instr_num=regions.index(midi_note),
-            sample_num=samples[midi_note],
-            **data
-        ))
-
-        samples[midi_note] += 1
-        c_samples += 1
-
-    print(f"# skipped (limit): {c_skipped}\n"
-          f"# unparsed: {c_unparsed}\n"
-          f"# instruments: {len(regions)}\n"
-          f"# samples: {c_samples}"
-          )
+    print(tpl_lsp.render({
+        'regions': sorted(lsp.items()),
+        'debug': args.debug,
+        }))
 
 elif args.sfz:
     if len(sfz) == 0:
