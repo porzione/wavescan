@@ -9,7 +9,7 @@ from os.path import dirname, realpath
 from sys import stderr
 import audiofile
 from jinja2 import Template as J2, StrictUndefined as J2Undef
-import pprint
+# import pprint
 import config
 
 aparser = ArgumentParser()
@@ -224,7 +224,7 @@ for ent in scantree(path):
                 'channels': audiofile.channels(ent.path),
                 'duration': duration,
                 'samples': audiofile.samples(ent.path),
-                'sampling_rate': audiofisf_5_le.sampling_rate(ent.path),
+                'sampling_rate': audiofile.sampling_rate(ent.path),
                 'bit_depth': audiofile.bit_depth(ent.path),
                 'num': len(speedrum[midi_note])
             })
