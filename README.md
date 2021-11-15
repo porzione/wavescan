@@ -39,4 +39,8 @@ the same but with extended midi key syntax
 
 make Speedrum Lite bank
 
-`wavescan -d /audio/Drums/5Pin --spdk -D > ~/Music/Speedrum/5Pin.speedk`
+`wavescan -d /audio/Drums/5Pin --speedk -D > ~/Music/Speedrum/5Pin.speedk`
+
+make Speedrum bank (untested)
+
+`wavescan -d /audio/Drums/5Pin --speedkit -D > ~/Music/Speedrum/5Pin.speedkit`

@@ -75,12 +75,12 @@ elif args.speedk:
     with open(f'{s_path}/speedk.j2', 'r', encoding='ascii') as fin:
         src = fin.read()
     tpl_speedrum = J2(src, undefined=J2Undef)
-    spdk = {}
+    speedrum = {}
 elif args.speedkit:
     with open(f'{s_path}/speedkit.j2', 'r', encoding='ascii') as fin:
         src = fin.read()
     tpl_speedrum = J2(src, undefined=J2Undef)
-    spdk = {}
+    speedrum = {}
 
 maxhh = 0
 if args.maxhh:
@@ -202,18 +202,23 @@ for ent in scantree(path):
                 warn(f"can't guess instrument: {ent.path}")
                 c_unparsed += 1
                 continue
-            if midi_note not in spdk:
-                spdk[midi_note] = []
-            spdk[midi_note].append({
+            if midi_note not in speedrum:
+                speedrum[midi_note] = []
+            if args.speedk and len(speedrum[midi_note]) > 0:
+                warn(f"Lite has only one layer, skipping {midi_note} {ent.path}")
+                continue
+            if args.speedkit and len(speedrum[midi_note]) > 7:
+                warn(f"already have 8 layers, skipping {midi_note} {ent.path}")
+                continue
+            speedrum[midi_note].append({
                 'pathname': ent.path,
                 'channels': audiofile.channels(ent.path),
                 'duration': duration,
                 'samples': audiofile.samples(ent.path),
                 'sampling_rate': audiofile.sampling_rate(ent.path),
                 'bit_depth': audiofile.bit_depth(ent.path),
-                'num': len(spdk[midi_note])
+                'num': len(speedrum[midi_note])
             })
-            pass
         else:
             print_info(ent)
 
@@ -291,13 +296,13 @@ elif args.sfz:
               )
 
 elif args.speedk:
-    if len(spdk) == 0:
+    if len(speedrum) == 0:
         warn("nothing found")
         exit()
 
     pads = {k: [] for k in range(36, 52)}
 
-    for reg_key, layers in sorted(spdk.items()):
+    for reg_key, layers in sorted(speedrum.items()):
         # 16 (36-51) pads in Lite
         if 36 <= reg_key <= 51:
             pads[reg_key] = {
@@ -315,13 +320,13 @@ elif args.speedk:
         }))
 
 elif args.speedkit:
-    if len(spdk) == 0:
+    if len(speedrum) == 0:
         warn("nothing found")
         exit()
 
     pads = {k: [] for k in range(36, 68)}
 
-    for reg_key, layers in sorted(spdk.items()):
+    for reg_key, layers in sorted(speedrum.items()):
         # 32 (36-67) in full version
         if 36 <= reg_key <= 67:
             pads[reg_key] = {
