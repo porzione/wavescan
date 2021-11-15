@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Speedrum FileType="DrumKit" version="2" creator="SpeedrumLite">
+  <Pads>
+  {% for num, pad in pads.items() %}
+    {% if 'name' in pad -%}
+    <Pad PadNum="{{ num-36 }}" PadName="{{ pad['midi'] }} {{ pad['name'] }}" IsCustomName="1" VoiceMode="1"
+         Cut="0" CutBy="0" Trigger="0" IsMute="0.0" IsSolo="0.0" Output="{{ pad['out'] }}.0"
+         Volume="1.0" Pan="0.0" Pitch="0.0" VelToAmp="1.0">
+      {% for layer in pad['layers'] %}
+      <Layer LayerNum="{{ layer['num'] }}"
+             SampleFileAbsolute="{{ layer['pathname'] }}"
+             LoopStart="0.0" LoopEnd="1.0" LP="20000.0" HP="20.0" AmpEnvIsOn="0.0" AmpAttack="0.0" AmpHold="1.0" AmpDecay="0.0"/>
+      {% endfor %}
+    </Pad>
+    {% else %}
+    <Pad PadNum="{{ num-36 }}"/>
+    {%- endif %}
+  {% endfor %}
+ </Pads>
+</Speedrum>

@@ -5,7 +5,7 @@ from argparse import ArgumentParser
 import re
 from pathlib import Path
 from os import scandir
-from os.path import dirname, realpath, relpath
+from os.path import dirname, realpath
 from sys import stderr
 import audiofile
 from jinja2 import Template as J2, StrictUndefined as J2Undef
@@ -23,21 +23,24 @@ aparser.add_argument("--channel", dest="channel", required=False,
 aparser.add_argument("--lsp",
                      action="store_true", dest="lsp", default=False,
                      help="LSP output")
+aparser.add_argument("--limit",
+                     action="store_true", dest="limit", default=False,
+                     help="respect LSP limits and skip extra data")
 aparser.add_argument("--sfz-mk",
                      action="store_true", dest="sfz_mk", default=False,
                      help="Add lokey/hikey/pitch instead of just key")
 aparser.add_argument("--sfz",
                      action="store_true", dest="sfz", default=False,
                      help="SFZ output")
-aparser.add_argument("--spdk",
-                     action="store_true", dest="spdk", default=False,
+aparser.add_argument("--speedk",
+                     action="store_true", dest="speedk", default=False,
                      help="Speedrum Lite output")
+aparser.add_argument("--speedkit",
+                     action="store_true", dest="speedkit", default=False,
+                     help="Speedrum output (untested))")
 aparser.add_argument("-D",
                      action="store_true", dest="debug", default=False,
                      help="debug output")
-aparser.add_argument("--limit",
-                     action="store_true", dest="limit", default=False,
-                     help="respect LSP limits and skip extra data")
 args = aparser.parse_args()
 path = Path(args.dir)
 if not path.exists():
@@ -68,10 +71,15 @@ elif args.sfz:
         src = fin.read()
     tpl_sfz = J2(src, undefined=J2Undef)
     sfz = {}
-elif args.spdk:
-    with open(f'{s_path}/spdk.j2', 'r', encoding='ascii') as fin:
+elif args.speedk:
+    with open(f'{s_path}/speedk.j2', 'r', encoding='ascii') as fin:
         src = fin.read()
-    tpl_spdk = J2(src, undefined=J2Undef)
+    tpl_speedrum = J2(src, undefined=J2Undef)
+    spdk = {}
+elif args.speedkit:
+    with open(f'{s_path}/speedkit.j2', 'r', encoding='ascii') as fin:
+        src = fin.read()
+    tpl_speedrum = J2(src, undefined=J2Undef)
     spdk = {}
 
 maxhh = 0
@@ -188,7 +196,7 @@ for ent in scantree(path):
                 'sampling_rate': audiofile.sampling_rate(ent.path),
                 'bit_depth': audiofile.bit_depth(ent.path),
             })
-        elif args.spdk:
+        elif args.speedk or args.speedkit:
             duration = audiofile.duration(ent.path)
             if (midi_note := guess_note(ent, duration)) == 0:
                 warn(f"can't guess instrument: {ent.path}")
@@ -197,8 +205,7 @@ for ent in scantree(path):
             if midi_note not in spdk:
                 spdk[midi_note] = []
             spdk[midi_note].append({
-                'abs_pathname': ent.path,
-                'rel_pathname': relpath(ent.path),
+                'pathname': ent.path,
                 'channels': audiofile.channels(ent.path),
                 'duration': duration,
                 'samples': audiofile.samples(ent.path),
@@ -283,28 +290,50 @@ elif args.sfz:
               f"// samples: {c_samples}"
               )
 
-elif args.spdk:
+elif args.speedk:
     if len(spdk) == 0:
         warn("nothing found")
         exit()
 
-    pads = []
+    pads = {k: [] for k in range(36, 52)}
 
     for reg_key, layers in sorted(spdk.items()):
-        # pprint.pprint(layers)
-        # 16 pads in Lite, 32 in paid
-        if 36 <= reg_key <= 52:
-            pads.append({
-                'num': reg_key-36,
+        # 16 (36-51) pads in Lite
+        if 36 <= reg_key <= 51:
+            pads[reg_key] = {
                 'out': reg_key-36,
                 'name': config.names[reg_key],
                 'midi': reg_key,
                 'layers': layers,
-            })
+            }
+        elif args.debug:
+            warn(f"out of Speedrum Lite range: {reg_key} / {layers}")
 
-        # pprint.pprint(pads)
+    print(tpl_speedrum.render({
+        'pads': pads,
+        'debug': args.debug
+        }))
 
-    print(tpl_spdk.render({
+elif args.speedkit:
+    if len(spdk) == 0:
+        warn("nothing found")
+        exit()
+
+    pads = {k: [] for k in range(36, 68)}
+
+    for reg_key, layers in sorted(spdk.items()):
+        # 32 (36-67) in full version
+        if 36 <= reg_key <= 67:
+            pads[reg_key] = {
+                'out': reg_key-36 if reg_key <= 51 else 15,
+                'name': config.names[reg_key],
+                'midi': reg_key,
+                'layers': layers,
+            }
+        elif args.debug:
+            warn(f"out of Speedrum range: {reg_key} / {layers}")
+
+    print(tpl_speedrum.render({
         'pads': pads,
         'debug': args.debug
         }))

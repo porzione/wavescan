@@ -1,6 +1,6 @@
 # Generate drum kits from audio files
 
-Find wav/flac/aif samples in provided with `-d` directory and print text config for importing into [LSP](https://lsp-plug.in/) sampler or [Speedrum Lite](https://www.apisoniclabs.com/freeware.html#speedrum-lite). SFZ output contains only key and sample opcodes, tested with [sfizz](https://sfz.tools/sfizz/) and [Redux](https://www.renoise.com/products/redux). Debug messages are printing to stderr.
+Find wav/flac/aif samples in provided with `-d` directory and print text config for importing into [LSP](https://lsp-plug.in/) sampler or [Speedrum](https://www.apisoniclabs.com/). Speedrum Lite is limited by 16 MIDI notes with numbers 36-51 (36-67 in full version, untested). SFZ output contains only key and sample opcodes, tested with [sfizz](https://sfz.tools/sfizz/) and [Redux](https://www.renoise.com/products/redux). Debug messages are printing to stderr.
 
 ## requirements
 
@@ -31,12 +31,12 @@ if it's unknown hi-hat, use 150ms duration to decide if it's open or closed
 
 print SFZ soundfont
 
-`wavescan -d /audio/Drums/5Pin --sfz > ~/home/Music/SFZ/5Pin.sfz`
+`wavescan -d /audio/Drums/5Pin --sfz > ~/Music/SFZ/5Pin.sfz`
 
 the same but with extended midi key syntax
 
-`wavescan -d /audio/Drums/5Pin --sfz --sfz-mk > ~/home/Music/SFZ/5Pin.sfz`
+`wavescan -d /audio/Drums/5Pin --sfz --sfz-mk > ~/Music/SFZ/5Pin.sfz`
 
-print Speedrum Lite bank
+make Speedrum Lite bank
 
-`wavescan -d /audio/Drums/5Pin --spdk`
+`wavescan -d /audio/Drums/5Pin --spdk -D > ~/Music/Speedrum/5Pin.speedk`
