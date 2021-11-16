@@ -143,7 +143,9 @@ ls_{{ note_loop.index-1 }}_{{ loop.index-1 }} = false
 rs_{{ note_loop.index-1 }}_{{ loop.index-1 }} = false
 
 # Sample left channel panorama [%]: -100.00000000..100.00000000
-pl_{{ note_loop.inde# Mute Group: 0..26
+pl_{{ note_loop.index-1 }}_{{ loop.index-1 }} = {{ d['pan_l'] }}
+
+# Mute Group: 0..26
 #   0: None
 #   1: A
 mgrp_{{ note_loop.index-1 }} = 0
@@ -153,7 +155,6 @@ mtg_{{ note_loop.index-1 }} = false
 
 # Note-off handling [boolean]: true/false
 nto_{{ note_loop.index-1 }} = false
-x-1 }}_{{ loop.index-1 }} = {{ d['pan_l'] }}
 
 # Sample right channel panorama [%]: -100.00000000..100.00000000
 pr_{{ note_loop.index-1 }}_{{ loop.index-1 }} = 100.00000000
