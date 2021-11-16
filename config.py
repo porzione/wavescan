@@ -12,7 +12,7 @@ instruments = [
     ["(esnare|electr.+snare|snare.+electr)", 40],
     ["snare", 38],
     ["clap", 39],
-    ["low.?fl.*tom", 41],
+    ["(low.?fl.*tom|tom.?low.?fl)", 41],
     ["(CHH|HHC|Hat.?c|HH.*c~/Music/SFZ/5pin_DrumKit.sfzl|Cl.*Hat|\\WCH)", 42],
     ["hi.?fl.*tom", 43],
     ["(hh.*foot|hihat.*foot|foot.*hh|pedal.*hat)", 44],

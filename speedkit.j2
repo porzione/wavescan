@@ -4,7 +4,7 @@
   <Pads>
   {% for num, pad in pads.items() %}
     {% if 'name' in pad -%}
-    <Pad PadName="{{ pad['midi'] }} {{ pad['name'] }}" IsCustomName="1" VoiceMode="1"
+    <Pad PadName="{{ pad['name'] }}" IsCustomName="1" VoiceMode="1"
          Cut="0" CutBy="0" Trigger="0" IsMute="0.0" IsSolo="0.0" Output="{{ pad['out'] }}.0"
          Volume="1.0" Pan="0.0" Pitch="0.0" VelToAmp="1.0">
       {% for layer in pad['layers'] %}
