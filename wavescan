@@ -248,7 +248,7 @@ def remap_speedrum():
         if k >= bound:
             excess.append(k)
     if len(excess) == 0:
-        returno
+        return
     sr_map = {}
     for e in excess:
         if len(free) > 0:
