@@ -32,21 +32,10 @@ msel = 0
 # Instrument selector: 0..N
 inst = 0
 
-{%- for midi_note, samples in regions %}
-{% set region_loop = loop %}
-{% for d in samples %}
-{% if debug -%}
-# name       : {{ d['name'] }}
-# info       : {{ d['midi_name'] }}({{ d['midi_note'] }}) LSP note:{{ d['lsp_note'] }} inst:{{ region_loop.index-1 }} sample:{{ loop.index-1 }}
-# channels   : {{ d['channels'] }}
-# duration   : {{ d['duration'] }}
-# samples    : {{ d['samples'] }}
-# sample rate: {{ d['sampling_rate'] }}
-# bit depth  : {{ d['bit_depth'] }}
-{%- endif %}
-
-# Channel: 0..15
-chan_{{ region_loop.index-1 }} = {{ d['chan'] }}
+{%- for midi_note, data in notes %}
+{% set note_loop = loop %}
+# MIDI instrument: {{ data['i']['midi_name'] }}({{ data['i']['midi_note'] }}) LSP note:{{ data['i']['lsp_note'] }} inst:{{ note_loop.index-1 }}
+chan_{{ note_loop.index-1 }} = {{ midi_channel }}
 
 # Note: 0..11
 #   0: C
@@ -61,7 +50,7 @@ chan_{{ region_loop.index-1 }} = {{ d['chan'] }}
 #   9: A
 #   10: A#
 #   11: B
-note_{{ region_loop.index-1 }} = {{ d['lsp_note'] }}
+note_{{ note_loop.index-1 }} = {{ data['i']['lsp_note'] }}
 
 # Octave: 0..10
 #   0: -1
@@ -75,69 +64,99 @@ note_{{ region_loop.index-1 }} = {{ d['lsp_note'] }}
 #   8: 7
 #   9: 8
 #   10: 9
-oct_{{ region_loop.index-1 }} = {{ d['oct'] }}
+oct_{{ note_loop.index-1 }} = {{ data['i']['oct'] }}
 
 # Mute Group: 0..26
 #   0: None
 #   1: A
-mgrp_{{ region_loop.index-1 }} = 0
+mgrp_{{ note_loop.index-1 }} = 0
 
 # Mute on stop [boolean]: true/false
-mtg_{{ region_loop.index-1 }} = false
+mtg_{{ note_loop.index-1 }} = false
 
 # Note-off handling [boolean]: true/false
-nto_{{ region_loop.index-1 }} = false
+nto_{{ note_loop.index-1 }} = false
 
 # Instrument listen [boolean]: true/false
-trg_{{ region_loop.index-1 }} = false
+trg_{{ note_loop.index-1 }} = false
 
 # Dynamics [%]: 0.00000000..100.00000000
-dyna_{{ region_loop.index-1 }} = 0.00000000
+dyna_{{ note_loop.index-1 }} = 0.00000000
 
 # Time drifting [ms]: 0.00000000..100.00000000
-drft_{{ region_loop.index-1 }} = 0.00000000
+drft_{{ note_loop.index-1 }} = 0.00000000
 
 # Sample selector: 0..7
-ssel_{{ region_loop.index-1 }} = 0
+ssel_{{ note_loop.index-1 }} = 0
+
+# Instrument listen [boolean]: true/false
+trg_{{ note_loop.index-1 }} = false
+
+# Dynamics [%]: 0.00000000..100.00000000
+dyna_{{ note_loop.index-1 }} = 0.00000000
+
+# Time drifting [ms]: 0.00000000..100.00000000
+drft_{{ note_loop.index-1 }} = 0.00000000
+
+# Sample selector: 0..7
+ssel_{{ note_loop.index-1 }} = 0
+
+{% for d in data['l'] %}
+# sample     : {{ loop.index-1 }}
+# channels   : {{ d['channels'] }}
+# duration   : {{ d['duration'] }}
+# samples    : {{ d['samples'] }}
+# sample rate: {{ d['sampling_rate'] }}
+# bit depth  : {{ d['bit_depth'] }}
 
 # Sample file [pathname]
-sf_{{ region_loop.index-1 }}_{{ loop.index-1 }} = "{{ d['pathname'] }}"
+sf_{{ note_loop.index-1 }}_{{ loop.index-1 }} = "{{ d['pathname'] }}"
 
 # Sample head cut [ms]: 0.00000000..64000.00000000
-hc_{{ region_loop.index-1 }}_{{ loop.index-1 }} = 0.00000000
+hc_{{ note_loop.index-1 }}_{{ loop.index-1 }} = 0.00000000
 
 # Sample tail cut [ms]: 0.00000000..64000.00000000
-tc_{{ region_loop.index-1 }}_{{ loop.index-1 }} = 0.00000000
+tc_{{ note_loop.index-1 }}_{{ loop.index-1 }} = 0.00000000
 
 # Sample fade in [ms]: 0.00000000..64000.00000000
-fi_{{ region_loop.index-1 }}_{{ loop.index-1 }} = 0.00000000
+fi_{{ note_loop.index-1 }}_{{ loop.index-1 }} = 0.00000000
 
 # Sample fade out [ms]: 0.00000000..64000.00000000
-fo_{{ region_loop.index-1 }}_{{ loop.index-1 }} = 0.00000000
+fo_{{ note_loop.index-1 }}_{{ loop.index-1 }} = 0.00000000
 
 # Sample makeup gain [G]: 0.00000000..10.00000000
-mk_{{ region_loop.index-1 }}_{{ loop.index-1 }} = 1.00000000
+mk_{{ note_loop.index-1 }}_{{ loop.index-1 }} = 1.00000000
 
 # Sample velocity max [%]: 0.00000000..100.00000000
-vl_{{ region_loop.index-1 }}_{{ loop.index-1 }} = 100.00000000
+vl_{{ note_loop.index-1 }}_{{ loop.index-1 }} = 100.00000000
 
 # Sample pre-delay [ms]: 0.00000000..100.00000000
-pd_{{ region_loop.index-1 }}_{{ loop.index-1 }} = 0.00000000
+pd_{{ note_loop.index-1 }}_{{ loop.index-1 }} = 0.00000000
 
 # Sample enabled [boolean]: true/false
-on_{{ region_loop.index-1 }}_{{ loop.index-1 }} = true
+on_{{ note_loop.index-1 }}_{{ loop.index-1 }} = true
 
 # Sample listen [boolean]: true/false
-ls_{{ region_loop.index-1 }}_{{ loop.index-1 }} = false
+ls_{{ note_loop.index-1 }}_{{ loop.index-1 }} = false
 
 # Sample reverse [boolean]: true/false
-rs_{{ region_loop.index-1 }}_{{ loop.index-1 }} = false
+rs_{{ note_loop.index-1 }}_{{ loop.index-1 }} = false
 
 # Sample left channel panorama [%]: -100.00000000..100.00000000
-pl_{{ region_loop.index-1 }}_{{ loop.index-1 }} = {{ d['pan_l'] }}
+pl_{{ note_loop.inde# Mute Group: 0..26
+#   0: None
+#   1: A
+mgrp_{{ note_loop.index-1 }} = 0
+
+# Mute on stop [boolean]: true/false
+mtg_{{ note_loop.index-1 }} = false
+
+# Note-off handling [boolean]: true/false
+nto_{{ note_loop.index-1 }} = false
+x-1 }}_{{ loop.index-1 }} = {{ d['pan_l'] }}
 
 # Sample right channel panorama [%]: -100.00000000..100.00000000
-pr_{{ region_loop.index-1 }}_{{ loop.index-1 }} = 100.00000000
+pr_{{ note_loop.index-1 }}_{{ loop.index-1 }} = 100.00000000
 
 {% endfor %}
 {% endfor %}

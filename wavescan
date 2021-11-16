@@ -52,10 +52,9 @@ midi_channel = 0
 if args.channel:
     if not args.channel.isnumeric():
         exit(f"channel '{args.channel}' not a number")
-    midi_channel = int(args.channel)
-    if not 1 <= midi_channel <= 16:
-        exit(f"channel '{midi_channel}' is out of range")
-    midi_channel -= 1
+    midi_channel = int(args.channel)-1
+    if not 0 <= midi_channel <= 15:
+        exit(f"channel '{args.channel}' is out of range")
 
 s_path = dirname(realpath(__file__))
 if args.lsp:
@@ -173,23 +172,24 @@ for ent in scantree(path):
                     continue
 
             if midi_note not in lsp:
-                lsp[midi_note] = []
+                lsp[midi_note] = {
+                    'i': {
+                        'lsp_note': midi_note % 12,
+                        'midi_note': midi_note,
+                        'midi_name': config.names[midi_note],
+                        'oct': int(midi_note / 12),
+                    },
+                    'l': []
+                }
 
-            lsp[midi_note].append({
+            lsp[midi_note]['l'].append({
                 'pathname': ent.path,
-                'debug': args.debug,
-                'name': ent.name,
-                'lsp_note': midi_note % 12,
-                'midi_note': midi_note,
-                'midi_name': config.names[midi_note],
                 'channels': audiofile.channels(ent.path),
                 'duration': duration,
                 'samples': audiofile.samples(ent.path),
                 'sampling_rate': audiofile.sampling_rate(ent.path),
                 'bit_depth': audiofile.bit_depth(ent.path),
-                'chan': midi_channel,
-                'oct': int(midi_note / 12),
-                'pan_l': pan_l
+                'pan_l': pan_l,
             })
         elif args.sfz:
             duration = audiofile.duration(ent.path)
@@ -248,7 +248,7 @@ def remap_speedrum():
         if k >= bound:
             excess.append(k)
     if len(excess) == 0:
-        return
+        returno
     sr_map = {}
     for e in excess:
         if len(free) > 0:
@@ -263,7 +263,8 @@ if args.lsp:
         exit()
 
     print(tpl_lsp.render({
-        'regions': sorted(lsp.items()),
+        'notes': sorted(lsp.items()),
+        'midi_channel': midi_channel,
         'debug': args.debug,
         }))
 
