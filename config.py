@@ -129,3 +129,18 @@ names = {
     86: "Mute Surdo",
     87: "Open Surdo",
 }
+
+ordering = [
+    36,  # Kick
+    42,  # HHC
+    46,  # HHO
+    39,  # Clap
+    75,  # Claves
+    82,  # Shaker
+    38,  # Snare
+    50,  # High Tom
+    45,  # Low Tom
+    49,  # Crash
+    51,  # Ride
+    55,  # Splash
+]

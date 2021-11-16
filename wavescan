@@ -257,13 +257,20 @@ def remap_speedrum():
     return sr_map
 
 
+def order_lsp(key):
+    if key[0] in config.ordering:
+        return config.ordering.index(key[0])
+    else:
+        return key[0] + 1000
+
+
 if args.lsp:
     if len(lsp) == 0:
         warn("nothing found")
         exit()
 
     print(tpl_lsp.render({
-        'notes': sorted(lsp.items()),
+        'notes': sorted(lsp.items(), key=order_lsp),
         'midi_channel': midi_channel,
         'debug': args.debug,
         }))
