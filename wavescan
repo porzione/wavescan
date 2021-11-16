@@ -38,6 +38,9 @@ aparser.add_argument("--speedk",
 aparser.add_argument("--speedkit",
                      action="store_true", dest="speedkit", default=False,
                      help="Speedrum output (untested))")
+aparser.add_argument("--one-out",
+                     action="store_true", dest="one_out", default=False,
+                     help="One output for all Speedrum pads")
 aparser.add_argument("-D",
                      action="store_true", dest="debug", default=False,
                      help="debug output")
@@ -245,7 +248,7 @@ def remap_speedrum():
         return
     excess = []
     for k, v in speedrum.items():
-        if k >= bound:
+        if k >= bound or k < 36:
             excess.append(k)
     if len(excess) == 0:
         return
@@ -318,9 +321,10 @@ elif args.speedk:
             if args.debug:
                 warn(f"remap: {note} -> {r_note}")
         # 16 (36-51) pads in Lite
-        if 36 <= r_note <= 51:
+        out = 0 if args.one_out else r_note-36
+        if 35 <= r_note <= 51:
             pads[r_note] = {
-                'out': r_note-36,
+                'out': out,
                 'name': config.names[note],
                 'layers': layers,
             }
@@ -346,14 +350,18 @@ elif args.speedkit:
             if args.debug:
                 warn(f"remap: {note} -> {r_note}")
         # 32 (36-67) in full version
-        if 36 <= r_note <= 67:
+        if args.one_out:
+            out = 0
+        else:
+            out = r_note-36 if r_note <= 51 else 15
+        if 35 <= r_note <= 67:
             pads[r_note] = {
-                'out': r_note-36 if r_note <= 51 else 15,
+                'out': out,
                 'name': config.names[note],
                 'layers': layers,
             }
         elif args.debug:
-            warn(f"out of Speedrum range: {reg_key} / {layers}")
+            warn(f"out of Speedrum range: {note} / {layers}")
 
     print(tpl_speedrum.render({
         'pads': pads,

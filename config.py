@@ -7,6 +7,7 @@ MAX_SAMPLES = 8
 
 instruments = [
     ["laser", 27],
+    ["(Acoustic.?Bass.?Drum|Kick.?Drum.?2|Kik_Brother)", 35],
     ["(kick|kik|BassDrum)", 36],
     ["(side|rim)", 37],
     ["(esnare|electr.+snare|snare.+electr)", 40],
@@ -75,7 +76,7 @@ names = {
     32: "Square Click",
     33: "Metronome Click",
     34: "Metronome Bell",
-    35: "Acoustic Bass Drum",
+    35: "Kick 2",
     36: "Bass Drum 1",
     37: "Side Stick",
     38: "Acoustic Snare",
