@@ -77,22 +77,22 @@ names = {
     33: "Metronome Click",
     34: "Metronome Bell",
     35: "Kick 2",
-    36: "Bass Drum 1",
-    37: "Side Stick",
-    38: "Acoustic Snare",
-    39: "Hand Clap",
-    40: "Electric Snare",
+    36: "Kick 1",
+    37: "Side",
+    38: "Snare",
+    39: "Clap",
+    40: "ESnare",
     41: "Low Floor Tom",
-    42: "Closed Hi Hat",
+    42: "Closed HH",
     43: "High Floor Tom",
     44: "Pedal Hi-Hat",
     45: "Low Tom",
-    46: "Open Hi-Hat",
+    46: "Open HH",
     47: "Low-Mid Tom",
     48: "Hi Mid Tom",
-    49: "Crash Cymbal 1",
+    49: "Crash Cymbal",
     50: "High Tom",
-    51: "Ride Cymbal 1",
+    51: "Ride Cymbal",
     52: "Chinese Cymbal",
     53: "Ride Bell",
     54: "Tambourine",
@@ -131,17 +131,18 @@ names = {
     87: "Open Surdo",
 }
 
+# only LSP for now
 ordering = [
-    36,  # Kick
-    42,  # HHC
-    46,  # HHO
-    39,  # Clap
-    75,  # Claves
-    82,  # Shaker
-    38,  # Snare
-    50,  # High Tom
-    45,  # Low Tom
-    49,  # Crash
-    51,  # Ride
-    55,  # Splash
+    36,  # Kick 1/2
+    42,  # HHC 3/4
+    46,  # HHO 5/6
+    39,  # Clap 7/8
+    38,  # Snare 9/10
+    75,  # Claves 11/12
+    82,  # Shaker 13/14
+    50,  # High Tom 15/16
+    45,  # Low Tom 17/18
+    49,  # Crash 19/20
+    51,  # Ride 21/22
+    55,  # Splash 23/24
 ]
