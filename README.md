@@ -44,3 +44,7 @@ make Speedrum Lite bank
 make Speedrum bank (untested)
 
 `wavescan -d /audio/Drums/5Pin --speedkit -D > ~/Music/Speedrum/5Pin.speedkit`
+
+one direct out for all drums (separate outs by default)
+
+`wavescan -d /home/ftp/audio/Drums/5Pin/my/ --speedk --one-out`
