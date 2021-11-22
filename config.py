@@ -29,8 +29,8 @@ instruments = [
     ["splash", 55],
     ["cowbell", 56],
     ["vibra", 58],
-    ["(hi.*bongo|bongo.*hi)", 60],
-    ["bongo", 61],
+    ["bongo", 60],
+    ["(lo.*bongo|bongo.*lo)", 61],
     ["(mut.*conga|conga.*mut)", 62],
     ["(open.*conga|conga.*open)", 63],
     ["hi.*conga", 62],
@@ -131,18 +131,21 @@ names = {
     87: "Open Surdo",
 }
 
-# only LSP for now
+# LSP and Speedrum ordering and outs
 ordering = [
-    36,  # Kick 1/2
-    42,  # HHC 3/4
-    46,  # HHO 5/6
-    39,  # Clap 7/8
-    38,  # Snare 9/10
-    75,  # Claves 11/12
-    82,  # Shaker 13/14
-    50,  # High Tom 15/16
-    45,  # Low Tom 17/18
-    49,  # Crash 19/20
-    51,  # Ride 21/22
-    55,  # Splash 23/24
+    36,  # Kick       1/2
+    42,  # HHC        3/4
+    46,  # HHO        5/6
+    39,  # Clap       7/8
+    38,  # Snare     9/10
+    45,  # Low Tom  11/12
+    50,  # Hi Tom   13/14
+    35,  # Kick2    15/16
+    37,  # Side/Rim 17/18
+    75,  # Claves   19/20
+    82,  # Shaker   21/22
+    49,  # Crash    23/24
+    51,  # Ride     25/26
+    55,  # Splash   27/28
+    27,  # Laser    29/30
 ]

@@ -339,7 +339,10 @@ elif args.speedk:
         }
         # 16 (36-51) pads in Lite
         if not args.one_out:
-            d['out'] = r_note-36
+            if note in config.ordering:
+                d['out'] = config.ordering.index(note)
+            else:
+                d['out'] = 0
         if 35 <= r_note <= 51:
             pads[r_note] = d
         elif args.debug:
@@ -369,7 +372,11 @@ elif args.speedkit:
         }
         # 32 (36-67) in full version
         if not args.one_out:
-            d['out'] = r_note-36 if r_note <= 51 else 15
+            # d['out'] = r_note-36 if r_note <= 51 else 15
+            if note in config.ordering:
+                d['out'] = config.ordering.index(note)
+            else:
+                d['out'] = 0
         if 35 <= r_note <= 67:
             pads[r_note] = d
         elif args.debug:

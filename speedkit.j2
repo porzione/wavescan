@@ -13,7 +13,7 @@
       sample rate: {{ layer['sampling_rate'] }}
       bit depth  : {{ layer['bit_depth'] }} -->
       {%- endif %}
-      <Layer SampleFileAbsolute="{{ layer['pathname'] }}" Checksum="{{ layer['checksum'] }}"/>
+      <Layer SampleFileAbsolute="{{ layer['pathname'] }}" Checksum="{{ layer['checksum'] }}"{% if loop.index > 1 %} Volume="0.0"{% endif %}/>
       {% endfor %}
     </Pad>
     {% else %}
