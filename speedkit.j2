@@ -4,11 +4,7 @@
   <Pads>
   {% for num, pad in pads.items() %}
     {% if 'name' in pad -%}
-    <Pad PadName="{{ pad['name'] }}" Output="{{ pad['out'] }}.0"
-         IsCustomName="1" VoiceMode="1" PlayMode="0" LayerIndex="1"
-         Cut="0" CutBy="0" Trigger="0" Mute="0.0"
-         Solo="0.0" Output="0.0" Volume="1.0" Pan="0.0" Pitch="0.0" LayerMode="0.0"
-         HumanizeIsOn="0.0" DistortionIsOn="0.0" FilterIsOn="0.0" CompEnabled="0.0" TransientIsOn="0.0">
+    <Pad PadName="{{ pad['name'] }}" IsCustomName="1"{% if 'out' in pad %} Output="{{ pad['out'] }}.0"{% endif %} LayerIndex="0">
       {% for layer in pad['layers'] %}
       {% if debug %}<!--
       channels   : {{ layer['channels'] }}
@@ -17,9 +13,7 @@
       sample rate: {{ layer['sampling_rate'] }}
       bit depth  : {{ layer['bit_depth'] }} -->
       {%- endif %}
-      <Layer SampleFileAbsolute="{{ layer['pathname'] }}"
-             Checksum="{{ layer['checksum'] }}"
-             IsSlice="0" Volume="1.0" Pan="0.0" Pitch="0.0"/>
+      <Layer SampleFileAbsolute="{{ layer['pathname'] }}" Checksum="{{ layer['checksum'] }}"/>
       {% endfor %}
     </Pad>
     {% else %}

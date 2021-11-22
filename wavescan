@@ -333,14 +333,15 @@ elif args.speedk:
             r_note = remap[note]
             if args.debug:
                 warn(f"remap: {note} -> {r_note}")
+        d = {
+            'name': config.names[note],
+            'layers': layers,
+        }
         # 16 (36-51) pads in Lite
-        out = 0 if args.one_out else r_note-36
+        if not args.one_out:
+            d['out'] = r_note-36
         if 35 <= r_note <= 51:
-            pads[r_note] = {
-                'out': out,
-                'name': config.names[note],
-                'layers': layers,
-            }
+            pads[r_note] = d
         elif args.debug:
             warn(f"out of Speedrum Lite range: {note} / {layers}")
 
@@ -362,17 +363,15 @@ elif args.speedkit:
             r_note = remap[note]
             if args.debug:
                 warn(f"remap: {note} -> {r_note}")
+        d = {
+            'name': config.names[note],
+            'layers': layers,
+        }
         # 32 (36-67) in full version
-        if args.one_out:
-            out = 0
-        else:
-            out = r_note-36 if r_note <= 51 else 15
+        if not args.one_out:
+            d['out'] = r_note-36 if r_note <= 51 else 15
         if 35 <= r_note <= 67:
-            pads[r_note] = {
-                'out': out,
-                'name': config.names[note],
-                'layers': layers,
-            }
+            pads[r_note] = d
         elif args.debug:
             warn(f"out of Speedrum range: {note} / {layers}")
 

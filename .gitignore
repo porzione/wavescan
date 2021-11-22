@@ -4,6 +4,9 @@ __pycache__/
 
 .vscode/
 
+.speedk
+.speedkit
+
 # stdout and stderr redirects
 z
 ze
