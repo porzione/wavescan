@@ -258,13 +258,13 @@ def remap_speedrum():
         if k not in speedrum:
             free.append(k)
     if len(free) == 0:
-        return
+        return {}
     excess = []
     for k, v in speedrum.items():
         if k >= bound or k < 36:
             excess.append(k)
     if len(excess) == 0:
-        return
+        return {}
     sr_map = {}
     for e in excess:
         if len(free) > 0:
