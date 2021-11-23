@@ -134,7 +134,7 @@ vl_{{ note_loop.index-1 }}_{{ loop.index-1 }} = 100.00000000
 pd_{{ note_loop.index-1 }}_{{ loop.index-1 }} = 0.00000000
 
 # Sample enabled [boolean]: true/false
-on_{{ note_loop.index-1 }}_{{ loop.index-1 }} = true
+on_{{ note_loop.index-1 }}_{{ loop.index-1 }} = {% if loop.index == 1 %}true{% else %}false{% endif %}
 
 # Sample listen [boolean]: true/false
 ls_{{ note_loop.index-1 }}_{{ loop.index-1 }} = false
