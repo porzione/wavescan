@@ -41,7 +41,10 @@ aparser.add_argument("--speedk",
                      help="Speedrum Lite output")
 aparser.add_argument("--speedkit",
                      action="store_true", dest="speedkit", default=False,
-                     help="Speedrum output (untested))")
+                     help="Speedrum output")
+aparser.add_argument("--no-remap",
+                     action="store_true", dest="no_remap", default=False,
+                     help="Disable remapping")
 aparser.add_argument("--one-out",
                      action="store_true", dest="one_out", default=False,
                      help="One output for all Speedrum pads")
@@ -331,7 +334,7 @@ elif args.speedk:
         exit()
 
     pads = {k: [] for k in range(36, 52)}
-    remap = remap_speedrum()
+    remap = {} if args.no_remap else remap_speedrum()
     for note, layers in sorted(speedrum.items()):
         r_note = note
         if note in remap:
@@ -385,7 +388,7 @@ elif args.speedkit:
         exit()
 
     pads = {k: [] for k in range(36, 68)}
-    remap = remap_speedrum()
+    remap = {} if args.no_remap else remap_speedrum()
     for note, layers in sorted(speedrum.items()):
         r_note = note
         if note in remap:
