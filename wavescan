@@ -357,7 +357,9 @@ elif args.speedk:
     for num, data in pads.items():
         pad = ET.SubElement(sdr_pads, 'Pad')
         pad.set("PadNum", str(pad_num))
-        # PadName="Snare" IsCustomName="1" Output="4.0"
+        pad_num += 1
+        if len(data) == 0:
+            continue
         pad.set("PadName", data['name'])
         pad.set("IsCustomName", "1")
         if 'out' in data:
@@ -370,8 +372,6 @@ elif args.speedk:
             if args.debug:
                 comment = f"ch:{ld['channels']} dur:{ld['duration']} ss:{ld['samples']} sr:{ld['sampling_rate']} bd:{ld['bit_depth']}"
                 layer.append(ET.Comment(comment))
-
-        pad_num += 1
 
     tree = ET.ElementTree(sdr_root)
 
