@@ -57,6 +57,7 @@ instruments = [
     ["hat", 1000],
     # other doubtful drums
     ["fl.*tom", 41],
+    ["(mid.*tom|tom.*mid)", 47],
     ["tom", 45],
     ["cym", 51],
     ["\\WBD", 36],
