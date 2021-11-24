@@ -258,8 +258,8 @@ for ent in scantree(path):
             exit()
 
 
-def remap_speedrum():
-    """remap exceess notes to free pads 36-51/67"""
+def speedrum_remap():
+    """remap exceess notes to unused pads 36-51/67"""
     bound = 52 if args.speedk else 68
     free = []
     for k in range(36, bound):
@@ -281,6 +281,14 @@ def remap_speedrum():
     return sr_map
 
 
+def speedrum_fmt_comment(data):
+    return f"channels:{ld['channels']} " \
+        f"duration:{ld['duration']} " \
+        f"samples:{ld['samples']} " \
+        f"sampling_rate:{ld['sampling_rate']}" \
+        f"bit depth:{ld['bit_depth']}"
+
+
 def order_lsp(key):
     if key[0] in config.ordering:
         return config.ordering.index(key[0])
@@ -297,7 +305,7 @@ if args.lsp:
         'notes': sorted(lsp.items(), key=order_lsp),
         'midi_channel': midi_channel,
         'debug': args.debug,
-        }))
+    }))
 
 elif args.sfz:
     if len(sfz) == 0:
@@ -320,7 +328,7 @@ elif args.sfz:
         'multikey': args.sfz_mk,
         'regions': regions,
         'debug': args.debug
-        }))
+    }))
 
     if args.debug:
         print(f"// unparsed: {c_unparsed}\n"
@@ -334,7 +342,7 @@ elif args.speedk:
         exit()
 
     pads = {k: [] for k in range(36, 52)}
-    remap = {} if args.no_remap else remap_speedrum()
+    remap = {} if args.no_remap else speedrum_remap()
     for note, layers in sorted(speedrum.items()):
         r_note = note
         if note in remap:
@@ -373,7 +381,7 @@ elif args.speedk:
             # Lite is one layered
             layer.set("LayerNum", "0")
             if args.debug:
-                comment = f"ch:{ld['channels']} dur:{ld['duration']} ss:{ld['samples']} sr:{ld['sampling_rate']} bd:{ld['bit_depth']}"
+                comment = speedrum_fmt_comment(ld)
                 layer.append(ET.Comment(comment))
 
     tree = ET.ElementTree(sdr_root)
@@ -388,7 +396,7 @@ elif args.speedkit:
         exit()
 
     pads = {k: [] for k in range(36, 68)}
-    remap = {} if args.no_remap else remap_speedrum()
+    remap = {} if args.no_remap else speedrum_remap()
     for note, layers in sorted(speedrum.items()):
         r_note = note
         if note in remap:
@@ -401,12 +409,11 @@ elif args.speedkit:
         }
         # 32 (36-67) in full version
         if not args.one_out:
-            # d['out'] = r_note-36 if r_note <= 51 else 15
             if note in config.ordering:
                 d['out'] = config.ordering.index(note)
             else:
                 d['out'] = 0
-        if 35 <= r_note <= 67:
+        if 36 <= r_note <= 67:
             pads[r_note] = d
         elif args.debug:
             warn(f"out of Speedrum range: {note} / {layers}")
@@ -428,7 +435,7 @@ elif args.speedkit:
             if lc > 0:
                 layer.set("Volume", "0.0")
             if args.debug:
-                comment = f"ch:{ld['channels']} dur:{ld['duration']} ss:{ld['samples']} sr:{ld['sampling_rate']} bd:{ld['bit_depth']}"
+                comment = speedrum_fmt_comment(ld)
                 layer.append(ET.Comment(comment))
             lc += 1
 
