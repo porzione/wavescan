@@ -49,7 +49,7 @@ the same but with extended midi key syntax
 
 make Speedrum Lite bank
 
-`wavescan -d /audio/Drums/my/ --speedk -D > ~/Music/Speedrum/my.speedk`
+`wavescan -d /audio/Drums/my/ --speedk -D > ~/Music/Speedrum/my.allowedspeedk`
 
 make Speedrum bank
 
@@ -58,3 +58,7 @@ make Speedrum bank
 one direct out for all drums (separate outs by default)
 
 `wavescan -d /home/ftp/audio/Drums/my/ --speedk --one-out`
+
+do not mute additional layers, by default only the first one is enabled
+
+`wavescan -d /home/ftp/audio/Drums/my/ --speedkit --no-mute`
