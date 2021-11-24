@@ -8,5 +8,4 @@ __pycache__/
 .speedkit
 
 # stdout and stderr redirects
-z
-ze
+z*

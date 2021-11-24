@@ -48,6 +48,9 @@ aparser.add_argument("--no-remap",
 aparser.add_argument("--one-out",
                      action="store_true", dest="one_out", default=False,
                      help="One output for all Speedrum pads")
+aparser.add_argument("--no-mute",
+                     action="store_true", dest="no_mute", default=False,
+                     help="Do not mute additional layers")
 aparser.add_argument("-D",
                      action="store_true", dest="debug", default=False,
                      help="debug output")
@@ -202,9 +205,12 @@ for ent in scantree(path):
                     },
                     'l': []
                 }
-
+            is_enabled = 'true'
+            if len(lsp[midi_note]['l']) > 0 and not args.no_mute:
+                is_enabled = 'false'
             lsp[midi_note]['l'].append({
                 'pathname': ent.path,
+                'is_enabled': is_enabled,
                 'channels': audiofile.channels(ent.path),
                 'duration': duration,
                 'samples': audiofile.samples(ent.path),
@@ -432,7 +438,7 @@ elif args.speedkit:
             layer = ET.SubElement(pad, 'Layer')
             layer.set("SampleFileAbsolute", ld["pathname"])
             layer.set("Checksum", ld['checksum'])
-            if lc > 0:
+            if lc > 0 and not args.no_mute:
                 layer.set("Volume", "0.0")
             if args.debug:
                 comment = speedrum_fmt_comment(ld)
