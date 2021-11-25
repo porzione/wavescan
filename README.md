@@ -6,7 +6,7 @@ wavescan recursively goes through  wav/flac/aif samples in provided with `-d` di
 
 - [LSP sampler](https://lsp-plug.in/)
 
-- [Speedrum drum samples](https://www.apisoniclabs.com/)
+- [Speedrum](https://www.apisoniclabs.com/) lite and full version
 
 - [SFZ](https://sfzformat.com/)  enabled software, tested with [sfizz](https://sfz.tools/sfizz/) and [Redux](https://www.renoise.com/products/redux).
 
@@ -57,8 +57,8 @@ make Speedrum bank
 
 one direct out for all drums (separate outs by default)
 
-`wavescan -d /home/ftp/audio/Drums/my/ --speedk --one-out`
+`wavescan -d /audio/Drums/my/ --speedk --one-out`
 
-do not mute additional layers, by default only the first one is enabled
+do not mute/disable additional layers, by default only the first one is enabled
 
-`wavescan -d /home/ftp/audio/Drums/my/ --speedkit --no-mute`
+`wavescan -d /audio/Drums/my/ --speedkit --no-mute`
