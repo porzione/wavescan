@@ -57,7 +57,7 @@ instruments = [
     ["hat", 1000],
     # other doubtful drums
     ["fl.*tom", 41],
-    ["(mid.*tom|tom.*mid)", 47],
+    ["(mid.*tom|tom.*mid)", 48],
     ["tom", 45],
     ["cym", 51],
     ["\\WBD", 36],
@@ -134,19 +134,20 @@ names = {
 
 # LSP and Speedrum ordering and outs
 ordering = [
-    36,  # Kick       1/2
-    42,  # HHC        3/4
-    46,  # HHO        5/6
-    39,  # Clap       7/8
-    38,  # Snare     9/10
-    45,  # Low Tom  11/12
-    50,  # Hi Tom   13/14
-    35,  # Kick2    15/16
-    37,  # Side/Rim 17/18
-    75,  # Claves   19/20
-    82,  # Shaker   21/22
-    49,  # Crash    23/24
-    51,  # Ride     25/26
-    55,  # Splash   27/28
-    27,  # Laser    29/30
+    36,  # Kick
+    42,  # Closed Hi Hat
+    46,  # Open Hi-Hat
+    39,  # Hand Clap
+    38,  # Acoustic Snare
+    45,  # Low Tom
+    48,  # Mid Tom
+    50,  # High Tom
+    49,  # Crash Cymbal
+    51,  # Ride Cymbal
+    55,  # Splash Cymbal
+    35,  # Kick 2
+    37,  # Side Stick
+    60,  # Hi Bongo
+    75,  # Claves
+    82,  # Shaker
 ]
