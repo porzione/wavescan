@@ -189,6 +189,11 @@ class Speedrum:
                 continue
             pad.set("PadName", data['name'])
             pad.set("IsCustomName", "1")
+            if len(data['layers']) == 1 or self.no_mute:
+                layer_mode = "4.0"
+            else:
+                layer_mode = "0.0"
+            pad.set("LayerMode", layer_mode)
             pad.set("LayerIndex", "0")
             if 'out' in data:
                 pad.set("Output", f"{data['out']}.0")
@@ -197,8 +202,6 @@ class Speedrum:
                 layer = ET.SubElement(pad, 'Layer')
                 layer.set("SampleFileAbsolute", ld["pathname"])
                 layer.set("Checksum", ld['checksum'])
-                if lc > 0 and not self.no_mute:
-                    layer.set("Volume", "0.0")
                 if self.debug:
                     comment = Speedrum.fmt_comment(ld)
                     layer.append(ET.Comment(comment))
