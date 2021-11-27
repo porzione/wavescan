@@ -23,7 +23,7 @@ pip install Jinja2
 
 ## examples
 
-scan directory tree for samples, store LSP config in 'dk900.cfg'
+scan directory tree for samples, store LSP config in 'dk909.cfg'
 
 `wavescan -d /audio/H2/Roland_TB909Kit/ --lsp > dk909.cfg`
 
