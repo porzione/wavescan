@@ -172,6 +172,8 @@ class Speedrum:
                 'name': config.names[note],
                 'layers': layers,
             }
+            if note in config.colors:
+                d['color'] = config.colors[note]
             # 32 (36-67) in full version
             if not self.one_out:
                 if note in config.ordering:
@@ -197,6 +199,8 @@ class Speedrum:
             pad.set("LayerIndex", "0")
             if 'out' in data:
                 pad.set("Output", f"{data['out']}.0")
+            if 'color' in data:
+                pad.set("PadColor", data['color'])
             lc = 0
             for ld in data['layers']:
                 layer = ET.SubElement(pad, 'Layer')

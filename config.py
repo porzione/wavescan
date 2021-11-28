@@ -79,7 +79,7 @@ names = {
     34: "Metronome Bell",
     35: "Kick 2",
     36: "Kick 1",
-    37: "Side",
+    37: "Side/Rim",
     38: "Snare",
     39: "Clap",
     40: "ESnare",
@@ -146,8 +146,28 @@ ordering = [
     51,  # Ride Cymbal
     55,  # Splash Cymbal
     35,  # Kick 2
-    37,  # Side Stick
+    37,  # Side/Rim
     60,  # Hi Bongo
     75,  # Claves
     82,  # Shaker
 ]
+
+colors = {
+    27: "ffea47ea",
+    35: "ff3d8eff",
+    36: "ff3d8eff",
+    37: "fff15252",
+    38: "ff0db9f2",
+    39: "fff57138",
+    42: "ffecd613",
+    45: "ff16c232",
+    46: "ffecd613",
+    48: "ff16c232",
+    49: "fff99c10",
+    50: "ff16c232",
+    51: "fff99c10",
+    55: "fff99c10",
+    60: "fff15252",
+    75: "fff15252",
+    82: "fff57138",
+}
