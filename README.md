@@ -14,7 +14,7 @@ Speedrum Lite is limited by 16 MIDI notes with numbers 36-51 (36-67 in full vers
 
 ## requirements
 
-python 3.9 with couple of modules
+python 3.9+ with couple of modules
 
 ```bash
 pip install audiofile
