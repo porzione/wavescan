@@ -27,9 +27,10 @@ or just have uv installed and forget about it.
 ## tests
 
 ```bash
-pip install -r requirements-dev.txt
-pytest
+./run-tests
 ```
+
+The wrapper works like the `wavescan` one: it uses the system Python if pytest and the modules are installed (`pip install -r requirements-dev.txt`), and uv otherwise. Extra arguments are passed to pytest.
 
 The guesser is regression-tested against `tests/fixtures/drum_paths.txt` — 4509 file paths from a real drum sample library — with the expected guess for each recorded in `tests/fixtures/guess_golden.txt`. After an intentional change to the rules in `config.py`, regenerate the golden file with `python tests/regen_golden.py` and review the diff.
 

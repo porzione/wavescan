@@ -1,0 +1,20 @@
+#!/bin/sh
+# Wrapper: run the test suite with system python if pytest and the
+# modules are importable, otherwise let uv provide an environment.
+set -eu
+dir=$(dirname "$(readlink -f "$0")")
+
+if python3 -c 'import pytest, audiofile, jinja2' 2>/dev/null; then
+    exec python3 -m pytest "$dir/tests" "$@"
+fi
+
+if command -v uv >/dev/null 2>&1; then
+    exec uv run -q --no-project \
+        --with-requirements "$dir/requirements-dev.txt" \
+        -- python3 -m pytest "$dir/tests" "$@"
+fi
+
+echo "run-tests: pytest/audiofile/Jinja2 not found and uv is not installed" >&2
+echo "either 'pip install -r $dir/requirements-dev.txt'" >&2
+echo "or install uv: https://docs.astral.sh/uv/" >&2
+exit 1
