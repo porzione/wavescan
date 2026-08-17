@@ -16,7 +16,7 @@ dry = 1.00000000
 # Wet amount [G]: 0.00000000..10.00000000
 wet = 1.00000000
 
-# Output gain [G]: 0.00000000..1000.00000000sf_5_
+# Output gain [G]: 0.00000000..1000.00000000
 g_out = 1.00000000
 
 # Apply gain to direct-out [boolean]: true/false
@@ -89,18 +89,6 @@ drft_{{ note_loop.index-1 }} = 0.00000000
 # Sample selector: 0..7
 ssel_{{ note_loop.index-1 }} = 0
 
-# Instrument listen [boolean]: true/false
-trg_{{ note_loop.index-1 }} = false
-
-# Dynamics [%]: 0.00000000..100.00000000
-dyna_{{ note_loop.index-1 }} = 0.00000000
-
-# Time drifting [ms]: 0.00000000..100.00000000
-drft_{{ note_loop.index-1 }} = 0.00000000
-
-# Sample selector: 0..7
-ssel_{{ note_loop.index-1 }} = 0
-
 {% for d in data['l'] %}
 # sample     : {{ loop.index-1 }}
 # channels   : {{ d['channels'] }}
@@ -144,17 +132,6 @@ rs_{{ note_loop.index-1 }}_{{ loop.index-1 }} = false
 
 # Sample left channel panorama [%]: -100.00000000..100.00000000
 pl_{{ note_loop.index-1 }}_{{ loop.index-1 }} = {{ d['pan_l'] }}
-
-# Mute Group: 0..26
-#   0: None
-#   1: A
-mgrp_{{ note_loop.index-1 }} = 0
-
-# Mute on stop [boolean]: true/false
-mtg_{{ note_loop.index-1 }} = false
-
-# Note-off handling [boolean]: true/false
-nto_{{ note_loop.index-1 }} = false
 
 # Sample right channel panorama [%]: -100.00000000..100.00000000
 pr_{{ note_loop.index-1 }}_{{ loop.index-1 }} = 100.00000000

@@ -54,7 +54,7 @@ class WSNote:
                 if num == 1000:
                     # closed: 42, open: 46
                     if self.maxhh:
-                        (num := 46) if duration > self.maxhh else (num := 42)
+                        num = 46 if duration > self.maxhh else 42
                         dur_msg = f"duration: {duration}, maxhh: {self.maxhh}"
                     else:
                         # Answer to the Ultimate Question

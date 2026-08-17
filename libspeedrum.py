@@ -67,6 +67,7 @@ class Speedrum:
             d['checksum'] = Speedrum.checksum(ent.path)
         self.bank[midi_note].append(d)
 
+    @staticmethod
     def checksum(fname):
         """md5 is speedrum's checksum"""
         hash_md5 = hashlib.md5()
@@ -75,15 +76,16 @@ class Speedrum:
                 hash_md5.update(chunk)
         return hash_md5.hexdigest()
 
+    @staticmethod
     def fmt_comment(data):
         return f"channels:{data['channels']} " \
             f"duration:{data['duration']} " \
             f"samples:{data['samples']} " \
-            f"sampling_rate:{data['sampling_rate']}" \
-            f"bit depth:{data['bit_depth']}"
+            f"sampling_rate:{data['sampling_rate']} " \
+            f"bit_depth:{data['bit_depth']}"
 
     def remap(self):
-        """remap exceess notes to unused pads 36-51/67"""
+        """remap excess notes to unused pads 36-51/67"""
         free = []
         for k in range(36, self.bound):
             if k not in self.bank:
@@ -128,7 +130,7 @@ class Speedrum:
                     d['out'] = config.ordering.index(note)
                 else:
                     d['out'] = 0
-            if 35 <= r_note <= 51:
+            if 36 <= r_note <= 51:
                 pads[r_note] = d
             elif self.debug:
                 warn(f"out of Speedrum Lite range: {note} / {layers}")
@@ -201,7 +203,6 @@ class Speedrum:
                 pad.set("Output", f"{data['out']}.0")
             if 'color' in data:
                 pad.set("PadColor", data['color'])
-            lc = 0
             for ld in data['layers']:
                 layer = ET.SubElement(pad, 'Layer')
                 layer.set("SampleFileAbsolute", ld["pathname"])
@@ -209,7 +210,6 @@ class Speedrum:
                 if self.debug:
                     comment = Speedrum.fmt_comment(ld)
                     layer.append(ET.Comment(comment))
-                lc += 1
 
         print(Speedrum.XML_HEADER)
         ET.indent(self.xml_root, space="\t", level=0)

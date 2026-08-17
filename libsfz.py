@@ -44,7 +44,6 @@ class SFZ:
 
     def build(self):
         regions = []
-        c_samples = 0
 
         for reg_key, samples in sorted(self.bank.items()):
             regions.append({
@@ -53,7 +52,7 @@ class SFZ:
                 'samples': samples
             })
 
-            c_samples += len(samples)
+            self.c_samples += len(samples)
 
         print(self.tpl.render({
             'multikey': self.multikey,

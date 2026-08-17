@@ -38,10 +38,11 @@ class LSP:
 
         if self.limit:
             if (midi_note in self.bank and
-                    len(self.bank[midi_note]) >= config.MAX_SAMPLES):
+                    len(self.bank[midi_note]['l']) >= config.MAX_SAMPLES):
                 warn(f"samples limit: {midi_note} {ent.path}")
                 return
-            if len(self.bank) >= config.MAX_INSTRUMENTS:
+            if (midi_note not in self.bank and
+                    len(self.bank) >= config.MAX_INSTRUMENTS):
                 warn(f"instruments limit: {midi_note} {ent.path}")
                 return
 
@@ -69,6 +70,7 @@ class LSP:
             'pan_l': pan_l,
         })
 
+    @staticmethod
     def order(key):
         if key[0] in config.ordering:
             return config.ordering.index(key[0])
