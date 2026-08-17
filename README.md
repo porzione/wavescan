@@ -22,6 +22,15 @@ Python 3.9+ with a couple of modules:
 pip install -r requirements.txt
 ```
 
+## tests
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
+The guesser is regression-tested against `tests/fixtures/drum_paths.txt` — 4509 file paths from a real drum sample library — with the expected guess for each recorded in `tests/fixtures/guess_golden.txt`. After an intentional change to the rules in `config.py`, regenerate the golden file with `python tests/regen_golden.py` and review the diff.
+
 ## examples
 
 scan directory tree for samples, store LSP config in 'dk909.cfg'
