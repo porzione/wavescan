@@ -3,8 +3,7 @@
 
 import xml.etree.ElementTree as ET
 import hashlib
-import audiofile
-from libwavescan import warn, WSNote
+from libwavescan import warn, probe, WSNote
 import config
 
 
@@ -12,6 +11,7 @@ class Speedrum:
 
     LITE = 1
     FULL = 2
+    LOW_PAD = 36
     ENCODING = "utf-8"
     XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>'
 
@@ -42,30 +42,27 @@ class Speedrum:
         return len(self.bank)
 
     def add(self, ent):
-        duration = audiofile.duration(ent.path)
-        if (midi_note := self.wsnote.guess(ent, duration)) == 0:
+        if (info := probe(ent.path)) is None:
+            self.c_unparsed += 1
+            return
+        if (midi_note := self.wsnote.guess(ent, info['duration'])) == 0:
             warn(f"can't guess instrument {ent.path}")
             self.c_unparsed += 1
             return
-        if midi_note not in self.bank:
-            self.bank[midi_note] = []
-        if self.type == Speedrum.LITE and len(self.bank[midi_note]) > 0:
+        layers = self.bank.get(midi_note, [])
+        if self.type == Speedrum.LITE and len(layers) > 0:
             warn(f"excess Lite layer, skipping {midi_note} {ent.path}")
             return
-        if self.type == Speedrum.FULL and len(self.bank[midi_note]) > 7:
+        if self.type == Speedrum.FULL and len(layers) > 7:
             warn(f"already have 8 layers, skipping {midi_note} {ent.path}")
             return
         d = {
             'pathname': ent.path,
-            'channels': audiofile.channels(ent.path),
-            'duration': duration,
-            'samples': audiofile.samples(ent.path),
-            'sampling_rate': audiofile.sampling_rate(ent.path),
-            'bit_depth': audiofile.bit_depth(ent.path),
+            **info,
         }
         if self.type == Speedrum.FULL:
             d['checksum'] = Speedrum.checksum(ent.path)
-        self.bank[midi_note].append(d)
+        self.bank.setdefault(midi_note, []).append(d)
 
     @staticmethod
     def checksum(fname):
@@ -87,14 +84,14 @@ class Speedrum:
     def remap(self):
         """remap excess notes to unused pads 36-51/67"""
         free = []
-        for k in range(36, self.bound):
+        for k in range(Speedrum.LOW_PAD, self.bound):
             if k not in self.bank:
                 free.append(k)
         if len(free) == 0:
             return {}
         excess = []
-        for k, v in self.bank.items():
-            if k >= self.bound or k < 36:
+        for k in self.bank:
+            if k >= self.bound or k < Speedrum.LOW_PAD:
                 excess.append(k)
         if len(excess) == 0:
             return {}
@@ -106,51 +103,57 @@ class Speedrum:
         return sr_map
 
     def build(self):
-        if self.type == Speedrum.LITE:
-            self.build_speedk()
-        elif self.type == Speedrum.FULL:
-            self.build_speedkit()
-
-    def build_speedk(self):
-        pads = {k: [] for k in range(36, 52)}
+        # 16 pads (36-51) in Lite, 32 (36-67) in full version
+        lite = self.type == Speedrum.LITE
+        pads = {k: [] for k in range(Speedrum.LOW_PAD, self.bound)}
         remap = {} if self.no_remap else self.remap()
         for note, layers in sorted(self.bank.items()):
-            r_note = note
-            if note in remap:
-                r_note = remap[note]
-                if self.debug:
-                    warn(f"remap: {note} -> {r_note}")
+            r_note = remap.get(note, note)
+            if r_note != note and self.debug:
+                warn(f"remap: {note} -> {r_note}")
             d = {
                 'name': config.names[note],
                 'layers': layers,
             }
-            # 16 (36-51) pads in Lite
+            if not lite and note in config.colors:
+                d['color'] = config.colors[note]
             if not self.one_out:
                 if note in config.ordering:
                     d['out'] = config.ordering.index(note)
                 else:
                     d['out'] = 0
-            if 36 <= r_note <= 51:
+            if Speedrum.LOW_PAD <= r_note < self.bound:
                 pads[r_note] = d
             elif self.debug:
-                warn(f"out of Speedrum Lite range: {note} / {layers}")
+                warn(f"out of Speedrum range: {note} / {layers}")
 
-        pad_num = 0
-        for num, data in pads.items():
+        for pad_num, data in enumerate(pads.values()):
             pad = ET.SubElement(self.pads, 'Pad')
-            pad.set("PadNum", str(pad_num))
-            pad_num += 1
+            if lite:
+                pad.set("PadNum", str(pad_num))
             if len(data) == 0:
                 continue
             pad.set("PadName", data['name'])
             pad.set("IsCustomName", "1")
+            if not lite:
+                if len(data['layers']) == 1 or self.no_mute:
+                    layer_mode = "4.0"
+                else:
+                    layer_mode = "0.0"
+                pad.set("LayerMode", layer_mode)
+                pad.set("LayerIndex", "0")
             if 'out' in data:
                 pad.set("Output", f"{data['out']}.0")
+            if 'color' in data:
+                pad.set("PadColor", data['color'])
             for ld in data['layers']:
                 layer = ET.SubElement(pad, 'Layer')
                 layer.set("SampleFileAbsolute", ld["pathname"])
-                # Lite is one layered
-                layer.set("LayerNum", "0")
+                if lite:
+                    # Lite is one layered
+                    layer.set("LayerNum", "0")
+                else:
+                    layer.set("Checksum", ld['checksum'])
                 if self.debug:
                     comment = Speedrum.fmt_comment(ld)
                     layer.append(ET.Comment(comment))
@@ -160,59 +163,3 @@ class Speedrum:
         print(ET.tostring(
             self.xml_root, Speedrum.ENCODING)
             .decode(Speedrum.ENCODING))
-
-    def build_speedkit(self):
-        pads = {k: [] for k in range(36, 68)}
-        remap = {} if self.no_remap else self.remap()
-        for note, layers in sorted(self.bank.items()):
-            r_note = note
-            if note in remap:
-                r_note = remap[note]
-                if self.debug:
-                    warn(f"remap: {note} -> {r_note}")
-            d = {
-                'name': config.names[note],
-                'layers': layers,
-            }
-            if note in config.colors:
-                d['color'] = config.colors[note]
-            # 32 (36-67) in full version
-            if not self.one_out:
-                if note in config.ordering:
-                    d['out'] = config.ordering.index(note)
-                else:
-                    d['out'] = 0
-            if 36 <= r_note <= 67:
-                pads[r_note] = d
-            elif self.debug:
-                warn(f"out of Speedrum range: {note} / {layers}")
-
-        for num, data in pads.items():
-            pad = ET.SubElement(self.pads, 'Pad')
-            if len(data) == 0:
-                continue
-            pad.set("PadName", data['name'])
-            pad.set("IsCustomName", "1")
-            if len(data['layers']) == 1 or self.no_mute:
-                layer_mode = "4.0"
-            else:
-                layer_mode = "0.0"
-            pad.set("LayerMode", layer_mode)
-            pad.set("LayerIndex", "0")
-            if 'out' in data:
-                pad.set("Output", f"{data['out']}.0")
-            if 'color' in data:
-                pad.set("PadColor", data['color'])
-            for ld in data['layers']:
-                layer = ET.SubElement(pad, 'Layer')
-                layer.set("SampleFileAbsolute", ld["pathname"])
-                layer.set("Checksum", ld['checksum'])
-                if self.debug:
-                    comment = Speedrum.fmt_comment(ld)
-                    layer.append(ET.Comment(comment))
-
-        print(Speedrum.XML_HEADER)
-        ET.indent(self.xml_root, space="\t", level=0)
-        print(ET.tostring(
-            self.xml_root, Speedrum.ENCODING
-            ).decode(Speedrum.ENCODING))

@@ -3,8 +3,7 @@
 
 from os.path import dirname, realpath
 from jinja2 import Template as J2, StrictUndefined as J2Undef
-import audiofile
-from libwavescan import warn, WSNote
+from libwavescan import warn, probe, WSNote
 import config
 
 
@@ -22,32 +21,30 @@ class LSP:
         self.bank = {}
         self.wsnote = WSNote(args)
         self.c_unparsed = 0
-        self.c_samples = 0
 
     def size(self):
         return len(self.bank)
 
     def add(self, ent):
-        # workaround for mono
-        pan_l = '0.0' if audiofile.channels(ent.path) == 1 else '-100.0'
-        duration = audiofile.duration(ent.path)
-        if (midi_note := self.wsnote.guess(ent, duration)) == 0:
+        if (info := probe(ent.path)) is None:
+            self.c_unparsed += 1
+            return
+        if (midi_note := self.wsnote.guess(ent, info['duration'])) == 0:
             warn(f"can't guess: {ent.path}")
             self.c_unparsed += 1
             return
 
+        entry = self.bank.get(midi_note)
         if self.limit:
-            if (midi_note in self.bank and
-                    len(self.bank[midi_note]['l']) >= config.MAX_SAMPLES):
+            if entry and len(entry['l']) >= config.MAX_SAMPLES:
                 warn(f"samples limit: {midi_note} {ent.path}")
                 return
-            if (midi_note not in self.bank and
-                    len(self.bank) >= config.MAX_INSTRUMENTS):
+            if entry is None and self.size() >= config.MAX_INSTRUMENTS:
                 warn(f"instruments limit: {midi_note} {ent.path}")
                 return
 
-        if midi_note not in self.bank:
-            self.bank[midi_note] = {
+        if entry is None:
+            entry = self.bank[midi_note] = {
                 'i': {
                     'lsp_note': midi_note % 12,
                     'midi_note': midi_note,
@@ -57,17 +54,14 @@ class LSP:
                 'l': []
             }
         is_enabled = 'true'
-        if len(self.bank[midi_note]['l']) > 0 and not self.no_mute:
+        if len(entry['l']) > 0 and not self.no_mute:
             is_enabled = 'false'
-        self.bank[midi_note]['l'].append({
+        entry['l'].append({
             'pathname': ent.path,
             'is_enabled': is_enabled,
-            'channels': audiofile.channels(ent.path),
-            'duration': duration,
-            'samples': audiofile.samples(ent.path),
-            'sampling_rate': audiofile.sampling_rate(ent.path),
-            'bit_depth': audiofile.bit_depth(ent.path),
-            'pan_l': pan_l,
+            # workaround for mono
+            'pan_l': '0.0' if info['channels'] == 1 else '-100.0',
+            **info,
         })
 
     @staticmethod

@@ -12,14 +12,31 @@ def warn(msg):
     print(msg, file=stderr)
 
 
+def probe(path):
+    """Read sample metadata, or None if the file is unreadable"""
+    try:
+        return {
+            'channels': audiofile.channels(path),
+            'duration': audiofile.duration(path),
+            'samples': audiofile.samples(path),
+            'sampling_rate': audiofile.sampling_rate(path),
+            'bit_depth': audiofile.bit_depth(path),
+        }
+    except Exception as err:
+        warn(f"skipping unreadable sample {path}: {err}")
+        return None
+
+
 def print_info(ent):
     """Print sample info"""
+    if (info := probe(ent.path)) is None:
+        return
     print(f'{ent.path}\n'
-          f'channels   : {audiofile.channels(ent.path)}\n'
-          f'duration   : {audiofile.duration(ent.path):.8}\n'
-          f'samples    : {audiofile.samples(ent.path)}\n'
-          f'sample rate: {audiofile.sampling_rate(ent.path)}\n'
-          f'bit depth  : {audiofile.bit_depth(ent.path)}\n')
+          f'channels   : {info["channels"]}\n'
+          f'duration   : {info["duration"]:.8}\n'
+          f'samples    : {info["samples"]}\n'
+          f'sample rate: {info["sampling_rate"]}\n'
+          f'bit depth  : {info["bit_depth"]}\n')
 
 
 class WSNote:

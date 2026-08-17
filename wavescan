@@ -23,12 +23,6 @@ out_fmt = aparser.add_mutually_exclusive_group()
 out_fmt.add_argument("--lsp",
                      action="store_true", dest="lsp", default=False,
                      help="LSP output")
-aparser.add_argument("--limit",
-                     action="store_true", dest="limit", default=False,
-                     help="respect LSP limits and skip extra data")
-aparser.add_argument("--sfz-mk",
-                     action="store_true", dest="sfz_mk", default=False,
-                     help="Add lokey/hikey/pitch instead of just key")
 out_fmt.add_argument("--sfz",
                      action="store_true", dest="sfz", default=False,
                      help="SFZ output")
@@ -38,6 +32,12 @@ out_fmt.add_argument("--speedk",
 out_fmt.add_argument("--speedkit",
                      action="store_true", dest="speedkit", default=False,
                      help="Speedrum output")
+aparser.add_argument("--limit",
+                     action="store_true", dest="limit", default=False,
+                     help="respect LSP limits and skip extra data")
+aparser.add_argument("--sfz-mk",
+                     action="store_true", dest="sfz_mk", default=False,
+                     help="Add lokey/hikey/pitch instead of just key")
 aparser.add_argument("--no-remap",
                      action="store_true", dest="no_remap", default=False,
                      help="Disable remapping")
@@ -86,15 +86,10 @@ def scantree(pathname):
 
 re_sample = re.compile(config.SAMPLE, re.I)
 re_ignore = re.compile(config.IGNORE, re.I)
+handle = print_info if bank is None else bank.add
 for ent in scantree(path):
     if re_sample.match(ent.name) and not re_ignore.match(ent.path):
-        try:
-            if bank is not None:
-                bank.add(ent)
-            else:
-                print_info(ent)
-        except (OSError, RuntimeError, ValueError) as err:
-            warn(f"skipping unreadable sample {ent.path}: {err}")
+        handle(ent)
 
 if bank is None:
     exit()
