@@ -9,7 +9,7 @@ import pytest
 
 from conftest import REPO
 
-WAVESCAN = str(REPO / "wavescan")
+WAVESCAN = str(REPO / "wavescan.py")
 
 # what the guesser makes of the sample_dir fixture
 GUESSED = {
@@ -179,3 +179,15 @@ def test_speedkit_no_mute(sample_dir):
 ])
 def test_all_modes_run_clean(sample_dir, flags):
     run("-d", str(sample_dir), "-D", *flags)
+
+
+def test_wrapper(sample_dir):
+    """The wavescan wrapper finds a python3 with the modules on PATH"""
+    import os
+    env = dict(os.environ)
+    env["PATH"] = f"{os.path.dirname(sys.executable)}:{env['PATH']}"
+    proc = subprocess.run(
+        [str(REPO / "wavescan"), "-d", str(sample_dir), "--sfz"],
+        capture_output=True, text=True, env=env)
+    assert proc.returncode == 0, proc.stderr
+    assert proc.stdout.count("<region>") == len(GUESSED)

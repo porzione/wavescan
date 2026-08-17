@@ -16,11 +16,13 @@ Speedrum Lite is limited to 16 pads with MIDI notes 36-51 (32 pads, notes 36-67 
 
 ## requirements
 
-Python 3.9+ with a couple of modules:
+Python 3.9+ with a couple of modules. The `wavescan` wrapper runs `wavescan.py` with the system Python if the `audiofile` and `Jinja2` modules are importable; otherwise it falls back to [uv](https://docs.astral.sh/uv/), which creates a cached environment with the modules automatically. So either install the modules:
 
 ```bash
 pip install -r requirements.txt
 ```
+
+or just have uv installed and don't think about it.
 
 ## tests
 

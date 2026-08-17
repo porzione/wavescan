@@ -1,101 +1,20 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/bin/sh
+# Wrapper: run wavescan.py with system python if audiofile/Jinja2 are
+# importable, otherwise let uv provide an environment with them.
+set -eu
+dir=$(dirname "$(readlink -f "$0")")
 
-from argparse import ArgumentParser
-import re
-from pathlib import Path
-from os import scandir
-import config
-import libsfz
-import libspeedrum
-import liblsp
-from libwavescan import warn, print_info
+if python3 -c 'import audiofile, jinja2' 2>/dev/null; then
+    exec python3 "$dir/wavescan.py" "$@"
+fi
 
-aparser = ArgumentParser()
-aparser.add_argument("-d", "--dir", dest="dir", required=True,
-                     help="samples directory", metavar="DIR")
-aparser.add_argument("--maxhh", dest="maxhh", required=False,
-                     help="max closed HiHat duration 1-999 ms",
-                     metavar="HH_LEN_MS")
-aparser.add_argument("--channel", dest="channel", required=False,
-                     help="MIDI channel 1-16 (LSP)", metavar="CHANNEL")
-out_fmt = aparser.add_mutually_exclusive_group()
-out_fmt.add_argument("--lsp",
-                     action="store_true", dest="lsp", default=False,
-                     help="LSP output")
-out_fmt.add_argument("--sfz",
-                     action="store_true", dest="sfz", default=False,
-                     help="SFZ output")
-out_fmt.add_argument("--speedk",
-                     action="store_true", dest="speedk", default=False,
-                     help="Speedrum Lite output")
-out_fmt.add_argument("--speedkit",
-                     action="store_true", dest="speedkit", default=False,
-                     help="Speedrum output")
-aparser.add_argument("--limit",
-                     action="store_true", dest="limit", default=False,
-                     help="respect LSP limits and skip extra data")
-aparser.add_argument("--sfz-mk",
-                     action="store_true", dest="sfz_mk", default=False,
-                     help="Add lokey/hikey/pitch instead of just key")
-aparser.add_argument("--no-remap",
-                     action="store_true", dest="no_remap", default=False,
-                     help="Disable remapping")
-aparser.add_argument("--one-out",
-                     action="store_true", dest="one_out", default=False,
-                     help="One output for all Speedrum pads")
-aparser.add_argument("--no-mute",
-                     action="store_true", dest="no_mute", default=False,
-                     help="Do not mute additional layers")
-aparser.add_argument("-D",
-                     action="store_true", dest="debug", default=False,
-                     help="debug output")
-args = aparser.parse_args()
-path = Path(args.dir)
-if not path.exists():
-    exit(f'{path} does not exist')
-elif not path.is_dir():
-    exit(f'{path} is not directory')
+if command -v uv >/dev/null 2>&1; then
+    exec uv run -q --no-project \
+        --with-requirements "$dir/requirements.txt" \
+        -- python3 "$dir/wavescan.py" "$@"
+fi
 
-midi_channel = 0
-if args.channel:
-    if not args.channel.isnumeric():
-        exit(f"channel '{args.channel}' not a number")
-    midi_channel = int(args.channel)-1
-    if not 0 <= midi_channel <= 15:
-        exit(f"channel '{args.channel}' is out of range")
-
-if args.lsp:
-    bank = liblsp.LSP(args, midi_channel)
-elif args.sfz:
-    bank = libsfz.SFZ(args)
-elif args.speedk or args.speedkit:
-    bank = libspeedrum.Speedrum(args)
-else:
-    bank = None
-
-
-def scantree(pathname):
-    """Recursively yield DirEntry objects for given directory."""
-    for entry in scandir(pathname):
-        if entry.is_dir(follow_symlinks=False):
-            yield from scantree(entry.path)
-        else:
-            yield entry
-
-
-re_sample = re.compile(config.SAMPLE, re.I)
-re_ignore = re.compile(config.IGNORE, re.I)
-handle = print_info if bank is None else bank.add
-for ent in scantree(path):
-    if re_sample.match(ent.name) and not re_ignore.match(ent.path):
-        handle(ent)
-
-if bank is None:
-    exit()
-
-if bank.size() == 0:
-    warn("nothing found")
-    exit()
-
-bank.build()
+echo "wavescan: modules audiofile/Jinja2 not found and uv is not installed" >&2
+echo "either 'pip install -r $dir/requirements.txt'" >&2
+echo "or install uv: https://docs.astral.sh/uv/" >&2
+exit 1
